@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class GoodEncoder extends LinearOpMode {
 
-    LZRobot robot = new LZRobot();
+    RobotHardware robot = new RobotHardware();
 
     private ElapsedTime runtime = new ElapsedTime();
 

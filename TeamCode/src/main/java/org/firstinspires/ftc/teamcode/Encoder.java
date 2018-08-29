@@ -1,18 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import org.firstinspires.ftc.teamcode.LZRobot;
 
 
 @Autonomous(name="Encodertt")
 public class Encoder extends LinearOpMode {
 
 
-    LZRobot robot = new LZRobot();
+    RobotHardware robot = new RobotHardware();
 
 
 

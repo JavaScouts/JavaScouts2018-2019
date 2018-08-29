@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -54,7 +54,7 @@ import java.util.Locale;
  */
 @Autonomous(name = "Sensor")
                             // Comment this out to add to the opmode list
-public class SensorREVColorDistance extends LinearOpMode {
+public class REVSensorTest extends LinearOpMode {
 
     /**
      * Note that the REV Robotics Color-Distance incorporates two sensors into one device.

@@ -2,19 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.LED;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by Liam on 4/8/2018.
  */
 
-@TeleOp(name="Test")
-public class Test extends LinearOpMode {
+@TeleOp(name="DataDrive")
+public class TelemetryDrive extends LinearOpMode {
 
-    LZRobot robot = new LZRobot();
+    RobotHardware robot = new RobotHardware();
 
     @Override
     public void runOpMode() {
