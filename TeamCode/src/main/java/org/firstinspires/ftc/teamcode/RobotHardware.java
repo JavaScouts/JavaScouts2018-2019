@@ -52,9 +52,11 @@ public class RobotHardware {
         backLDrive = map.dcMotor.get("bl");
         backRDrive = map.dcMotor.get("br");
 
+        rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+
         //STOP EVERYTHING
         moveRobot(0, 0, 0);
-
 
         myOpMode.telemetry.addData("Initialization:", "Complete!");
         myOpMode.telemetry.addData(" Left Encoder Count", leftDrive.getCurrentPosition());

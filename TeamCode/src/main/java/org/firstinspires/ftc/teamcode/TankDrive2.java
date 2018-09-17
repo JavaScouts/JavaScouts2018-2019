@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
- * Created by Liam on 4/8/2018.
+ * Created by Liam on 9/8/2018.
  */
 
-@TeleOp(name="DataDrive")
-public class TelemetryDrive extends LinearOpMode {
+@TeleOp(name="TankDrive2")
+public class TankDrive2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
@@ -18,21 +18,19 @@ public class TelemetryDrive extends LinearOpMode {
 
         robot.init(hardwareMap, this);
 
-        robot.rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-
         waitForStart();
 
         while(opModeIsActive()) {
 
-            robot.manualDrive();
+            double left = gamepad1.left_stick_y;
+            double right = gamepad1.right_stick_y;
+            robot.rightDrive.setPower(right);
+            robot.backRDrive.setPower(right);
+            robot.leftDrive.setPower(left);
+            robot.backLDrive.setPower(left);
+
+            // robot.manualDrive();
             robot.moveRobot();
-
-            telemetry.addLine();
-
-            telemetry.update();
-
-
 
 
         }
