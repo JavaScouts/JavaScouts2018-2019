@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.sun.tools.javac.util.Constants.format;
+import static org.firstinspires.ftc.robotcore.external.ClassFactory.createVuforiaLocalizer;
 
 /**
  * Created by Liam on 9/13/2018.
@@ -39,7 +40,6 @@ public class VuforiaTracking extends LinearOpMode {
 
         robot.rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-/*
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -52,14 +52,12 @@ public class VuforiaTracking extends LinearOpMode {
         VuforiaTrackables minerals = this.vuforia.loadTrackablesFromAsset("minerals");
         minerals.get(0).setName("Gold");
 
-*/
         waitForStart();
-//
-//        minerals.activate();
-//
+
+        minerals.activate();
+
         while(opModeIsActive()) {
 
-/*
             for(VuforiaTrackable mineral : minerals) {
                 OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) mineral.getListener()).getPose();
 
@@ -81,7 +79,6 @@ public class VuforiaTracking extends LinearOpMode {
 
                 }
             }
-*/
 
             telemetry.update();
 

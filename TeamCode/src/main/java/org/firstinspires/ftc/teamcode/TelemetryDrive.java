@@ -39,8 +39,7 @@ public class TelemetryDrive extends LinearOpMode {
             robot.moveRobot();
 */
 
-            mineralarm.setPower(gamepad2.right_stick_y);
-            mineralservo.setPosition(0);
+            mineralarm.setPower(gamepad2.right_stick_y * 0.15);
 
             telemetry.addLine();
             telemetry.addData("ServoPos", mineralservo.getPosition());
