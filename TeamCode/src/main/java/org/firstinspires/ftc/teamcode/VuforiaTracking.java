@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.vuforia.ObjectTracker;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -12,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -47,10 +50,11 @@ public class VuforiaTracking extends LinearOpMode {
         parameters.vuforiaLicenseKey = "Abd1Glv/////AAAAGZmYidRnmEU+hDYHKdO9PSlKOkMzut3jACYyynIBk/aI/uy1g5waDFv0hQlDLLoROL/RcHOLRIXYoEeTj0xW6JPELJd94fYr72YQ8A/hFOPLDO1UuM1je+Y2KbABDDilKaqShhHzfPinH1M7NLA7aZCwUk4ZRiDsLcB9f4hKVa9g//sUxId3KFb4GW438tD8t/xdZfcLcm+vP4yREaW6NirbqzCwTvp22/2eDuKIHGvVn3Fju4PcqCYYaFTvubLX2iXOwrEJWEVD+qtvQsqr5Dk+ClaUlv9amad/14aEU5jUohRU04PUlEgtaGSfLGNBmOXW14ugnipSbC1Lr423HlaaGgNjseX+D3nbZlX9a2Zo\n";
 
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        VuforiaTrackables minerals = this.vuforia.loadTrackablesFromAsset("minerals");
-        minerals.get(0).setName("Gold");
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        VuforiaTrackables minerals = this.vuforia.loadTrackablesFromAsset("Minerals_OT");
+        VuforiaTrackable gold = minerals.get(0);
 
         waitForStart();
 
@@ -58,8 +62,7 @@ public class VuforiaTracking extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            for(VuforiaTrackable mineral : minerals) {
-                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) mineral.getListener()).getPose();
+            OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) minerals.get(0).getListener()).getPose();
 
                 if (pose != null) {
 
@@ -81,8 +84,6 @@ public class VuforiaTracking extends LinearOpMode {
             }
 
             telemetry.update();
-
-        }
 
     }
 
