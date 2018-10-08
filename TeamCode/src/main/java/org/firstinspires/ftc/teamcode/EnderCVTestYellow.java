@@ -44,7 +44,7 @@ import java.util.List;
  * robotics OpenCV applications.
  */
 
-public class EnderCVTest extends OpenCVPipeline {
+public class EnderCVTestYellow extends OpenCVPipeline {
     private boolean showContours = true;
     // To keep it such that we don't have to instantiate a new Mat every call to processFrame,
     // we declare the Mats up here and reuse them. This is easier on the garbage collector.
@@ -69,11 +69,11 @@ public class EnderCVTest extends OpenCVPipeline {
         // Then, we threshold our hsv image so that we get a black/white binary image where white
         // is the blues listed in the specified range of values
         // you can use a program like WPILib GRIP to find these values, or just play around.
-        Core.inRange(hsv, new Scalar(238, 120, 36), new Scalar(255, 235, 0), thresholded);
+        Core.inRange(hsv, new Scalar(19, 137.58992805755395, 139.88309352517985), new Scalar(50, 255.0, 255.0), thresholded);
 
         // we blur the thresholded image to remove noise
         // there are other types of blur like box blur or gaussian which can be explored.
-        Imgproc.blur(thresholded, thresholded, new Size(3, 3));
+        Imgproc.blur(thresholded, thresholded, new Size(25, 25));
 
         // create a list to hold our contours.
         // Conceptually, there is going to be a single contour for the outline of every blue object

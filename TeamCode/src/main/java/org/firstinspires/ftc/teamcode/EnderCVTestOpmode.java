@@ -47,35 +47,64 @@ import java.util.Locale;
  */
 @TeleOp(name="Detect Yellow?")
 public class EnderCVTestOpmode extends OpMode {
-    private EnderCVTest blueVision;
+    private EnderCVTestWhite visionw;
+    private EnderCVTestYellow visiony;
+
+    private List<Integer> centerXy;
+    private List<Integer> centerXw;
+
+
     @Override
     public void init() {
-        blueVision = new EnderCVTest();
+        visionw = new EnderCVTestWhite();
         // can replace with ActivityViewDisplay.getInstance() for fullscreen
-        blueVision.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-        blueVision.setShowCountours(false);
+        visionw.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+        visionw.setShowCountours(true);
         // start the vision system
-        blueVision.enable();
+        visionw.enable();
+
+        visiony = new EnderCVTestYellow();
+        visiony.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+        visionw.setShowCountours(true);
+        visionw.enable();
+
     }
 
     @Override
     public void loop() {
-        // update the settings of the vision pipeline
-        blueVision.setShowCountours(gamepad1.x);
 
         // get a list of contours from the vision system
-        List<MatOfPoint> contours = blueVision.getContours();
-        for (int i = 0; i < contours.size(); i++) {
+        List<MatOfPoint> contoursw = visionw.getContours();
+        for (int i = 0; i < contoursw.size(); i++) {
             // get the bounding rectangle of a single contour, we use it to get the x/y center
             // yes there's a mass center using Imgproc.moments but w/e
-            Rect boundingRect = Imgproc.boundingRect(contours.get(i));
-            telemetry.addData("contour" + Integer.toString(i),
+            Rect boundingRect = Imgproc.boundingRect(contoursw.get(i));
+            centerXw.add((boundingRect.x + boundingRect.width) / 2);
+            telemetry.addData("CENTER, Y" + Integer.toString(i),
                     String.format(Locale.getDefault(), "(%d, %d)", (boundingRect.x + boundingRect.width) / 2, (boundingRect.y + boundingRect.height) / 2));
         }
+        List<MatOfPoint> contoursy = visiony.getContours();
+        for(int i = 0; i < contoursy.size(); i++) {
+
+            Rect boundingRect = Imgproc.boundingRect(contoursy.get(i));
+            centerXy.add((boundingRect.x + boundingRect.width / 2));
+            telemetry.addData("CENTER, Y" + Integer.toString(i),
+                    String.format(Locale.getDefault(), "(%d, %d)", (boundingRect.x + boundingRect.width) / 2, (boundingRect.y + boundingRect.height) / 2));
+        }
+
+        telemetry.update();
+
     }
 
     public void stop() {
         // stop the vision system
-        blueVision.disable();
+        visionw.disable();
     }
+
+    public String findPosition(List<Integer> cy, List<Integer> cw) {
+
+        return "";
+
+    }
+
 }

@@ -52,8 +52,10 @@ public class RobotHardware {
         backLDrive = map.dcMotor.get("bl");
         backRDrive = map.dcMotor.get("br");
 
-        rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRDrive.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //STOP EVERYTHING
         moveRobot(0, 0, 0);

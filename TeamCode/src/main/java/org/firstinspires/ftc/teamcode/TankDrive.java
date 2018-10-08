@@ -22,15 +22,15 @@ public class TankDrive extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            double left = -gamepad1.left_stick_y;
-            double right = -gamepad1.right_stick_y;
+            double left = gamepad1.left_stick_y;
+            double right =  gamepad1.right_stick_y;
             robot.rightDrive.setPower(right);
             robot.backRDrive.setPower(right);
             robot.leftDrive.setPower(left);
             robot.backLDrive.setPower(left);
 
-           // robot.manualDrive();
-            robot.moveRobot();
+            //robot.manualDrive();
+            //robot.moveRobot();
 
 
         }
