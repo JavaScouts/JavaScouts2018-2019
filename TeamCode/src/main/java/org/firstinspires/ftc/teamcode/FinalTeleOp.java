@@ -27,7 +27,11 @@ public class FinalTeleOp extends LinearOpMode {
         Screw = hardwareMap.dcMotor.get("Screw");
         Ball = hardwareMap.servo.get("Ball");
 
+        Cup.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
+
+
 
         while(opModeIsActive()) {
 
