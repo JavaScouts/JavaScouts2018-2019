@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /**
  * Created by Liam on 9/8/2018.
  */
 
-@TeleOp(name="TankDrive")
-public class TankDrive extends LinearOpMode {
+@TeleOp(name="MecanumDRRIIIIVE")
+public class MecanumDrive extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
@@ -22,15 +21,15 @@ public class TankDrive extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            double left = gamepad1.left_stick_y;
-            double right =  gamepad1.right_stick_y;
-            robot.rightDrive.setPower(right);
-            robot.backRDrive.setPower(right);
-            robot.leftDrive.setPower(left);
-            robot.backLDrive.setPower(left);
+            //double left = gamepad1.left_stick_y;
+            //double right =  gamepad1.right_stick_y;
+            //robot.rightDrive.setPower(right);
+            //robot.backRDrive.setPower(right);
+            //robot.leftDrive.setPower(left);
+            //robot.backLDrive.setPower(left);
 
-            //robot.manualDrive();
-            //robot.moveRobot();
+            robot.manualDrive();
+            robot.moveRobot();
 
 
         }

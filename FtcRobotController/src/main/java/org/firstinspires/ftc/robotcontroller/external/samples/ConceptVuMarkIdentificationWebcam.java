@@ -67,7 +67,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
  */
 
 @TeleOp(name="Concept: VuMark Id Webcam", group ="Concept")
-@Disabled
 public class ConceptVuMarkIdentificationWebcam extends LinearOpMode {
 
     public static final String TAG = "Vuforia VuMark Sample";
@@ -91,9 +90,10 @@ public class ConceptVuMarkIdentificationWebcam extends LinearOpMode {
         /*
          * Retrieve the camera we are to use.
          */
-        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        webcamName = hardwareMap.get(WebcamName.class, "w");
 
         /*
+
          * To start up Vuforia, tell it the view that we wish to use for camera monitor (on the RC phone);
          * If no camera monitor is desired, use the parameterless constructor instead (commented out below).
          */
@@ -115,9 +115,7 @@ public class ConceptVuMarkIdentificationWebcam extends LinearOpMode {
          * Once you've obtained a license key, copy the string from the Vuforia web site
          * and paste it in to your code on the next line, between the double quotes.
          */
-        parameters.vuforiaLicenseKey = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
-
-
+        parameters.vuforiaLicenseKey = "AVoYG9X/////AAABmTTi1I64gUR7oUdT0QMIZVw7tlyP8f2ssEm01N2IGE6F3ikzxOypSwQXtCSPhv8PqIRohipOk2GI+pn/+QAtwZtTPVoCId9/w9wuDgGqsO/g8HbJ9pwGfO6Rb85AM2BJa5ogWpCbXerFtp9Qb2lhvfUW50pWEFbA54SI6lbyePynx3844TgIpEhQ7jHLElcxchcrX0is8VCfhjHjV53sUsFSanRL86B7tALf8ULPz2e0hISvqV9/IoJVkeIWsRzoISGMooLydCsXUJF2QQc095ktlp0sRcekZoNcNp3+wIFzP2Em6Bce5WBvpeciVuBDy3ebgK5a3WqPB2yTmkSFuu24BGI3XbEmNVFzuQdH3//r";
         /**
          * We also indicate which camera on the RC we wish to use. For pedagogical purposes,
          * we use the same logic as in {@link ConceptVuforiaNavigationWebcam}.
@@ -133,7 +131,6 @@ public class ConceptVuMarkIdentificationWebcam extends LinearOpMode {
          */
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         VuforiaTrackable relicTemplate = relicTrackables.get(0);
-        relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
 
         telemetry.addData(">", "Press Play to start");
         telemetry.update();

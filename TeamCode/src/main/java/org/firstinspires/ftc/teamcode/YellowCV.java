@@ -44,7 +44,7 @@ import java.util.List;
  * robotics OpenCV applications.
  */
 
-public class EnderCVTestYellow {
+public class YellowCV {
     private boolean showContours = true;
     // To keep it such that we don't have to instantiate a new Mat every call to processFrame,
     // we declare the Mats up here and reuse them. This is easier on the garbage collector.
@@ -61,8 +61,7 @@ public class EnderCVTestYellow {
         return contours;
     }
 
-    // This is called every camera frame.
-    public Mat processFrame(Mat rgba) {
+    public Mat processFrame(Mat rgba, Mat gray) {
         // First, we change the colorspace from RGBA to HSV, which is usually better for color
         Imgproc.cvtColor(rgba, hsv, Imgproc.COLOR_RGB2HSV, 3);
         // Then, we threshold our hsv image so that we get a black/white binary image where white
