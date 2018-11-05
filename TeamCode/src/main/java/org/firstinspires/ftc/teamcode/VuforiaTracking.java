@@ -1,55 +1,31 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Bitmap;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.vuforia.Image;
-import com.vuforia.ObjectTracker;
-import com.vuforia.PIXEL_FORMAT;
-import com.vuforia.Vuforia;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Rect;
-import org.opencv.imgproc.Imgproc;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import static com.sun.tools.javac.util.Constants.format;
-import static org.firstinspires.ftc.robotcore.external.ClassFactory.createVuforiaLocalizer;
 
 /**
  * Created by Liam on 9/13/2018.
  */
-@TeleOp(name="PLEASE WORK")
+@TeleOp(name="VuforiaTracking")
 public class VuforiaTracking extends LinearOpMode {
 
-    RobotHardware robot = new RobotHardware();
-    EnderCVTestYellow vision = new EnderCVTestYellow();
-
-    private int centerX;
+    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     private VuforiaLocalizer vuforia;
-    private Image img,gray;
+    private TFObjectDetector tfod;
+    RobotHardware robot = new RobotHardware();
+
     WebcamName webcamName;
 
     @Override
@@ -57,9 +33,9 @@ public class VuforiaTracking extends LinearOpMode {
 
         /*robot.init(hardwareMap, this);
 
-        robot.rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-*/
+        robot.rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        robot.backRDrive.setDirection(DcMotor.Direction.REVERSE);
+        */
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -69,52 +45,96 @@ public class VuforiaTracking extends LinearOpMode {
 
         parameters.cameraName = webcamName;
 
-        this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+
+
+        if(ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        }
+
+
+
+        telemetry.addData("Initialization", "Complete.");
+        telemetry.update();
+
+
 
         waitForStart();
 
-        while(opModeIsActive()) {
 
-            vision.processFrame(getImage());
 
-            List<MatOfPoint> contours = vision.getContours();
-            for (int i = 0; i < contours.size(); i++) {
-                // get the bounding rectangle of a single contour, we use it to get the x/y center
-                // yes there's a mass center using Imgproc.moments but w/e
-                Rect boundingRect = Imgproc.boundingRect(contours.get(i));
-                centerX = (boundingRect.x + boundingRect.width) / 2;
-                telemetry.addData("contour" + Integer.toString(i),
-                        String.format(Locale.getDefault(), "(%d, %d)", (boundingRect.x + boundingRect.width) / 2, (boundingRect.y + boundingRect.height) / 2));
+        if(opModeIsActive()) {
+
+            if(tfod != null) {
+                tfod.activate();
             }
 
-        }
+            while (opModeIsActive()) {
 
-    }
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
-    private Mat getImage() {
+                    if (updatedRecognitions != null) {
 
-        try {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-            VuforiaLocalizer.CloseableFrame frame = this.vuforia.getFrameQueue().take(); //takes the frame at the head of the queue
-            long numImages = frame.getNumImages();
+                        if (updatedRecognitions.size() == 3) {
 
-            for (int i = 0; i < numImages; i++) {
-                if (frame.getImage(i).getFormat() == PIXEL_FORMAT.RGB565) {
-                    img = frame.getImage(i);
-                    break;
+                            //-1 means not yet detected
+
+                            int goldMineralX = -1;
+                            int silverMineral1X = -1;
+                            int silverMineral2X = -1;
+
+                            //loop through all the found objects, and label each with their respective x values(there should be three distinct)
+
+                            for (Recognition recognition : updatedRecognitions) {
+
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                    goldMineralX = (int) recognition.getLeft();
+                                    telemetry.addData("Gold Mineral Angle", recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                                } else if (silverMineral1X == -1) {
+                                    silverMineral1X = (int) recognition.getLeft();
+                                } else {
+                                    silverMineral2X = (int) recognition.getLeft();
+                                }
+                            }
+
+
+                            /*if all are detected, if gold is to the left of both silver 1 and 2, it is in position left
+                                                   if gold is to the right of both silver 1 and 2, it is in position right
+                                                   any other position is the center
+
+                             */
+
+                            if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                                if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                                    telemetry.addData("Gold Mineral Position", "Left");
+                                } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                    telemetry.addData("Gold Mineral Position", "Right");
+                                } else {
+                                    telemetry.addData("Gold Mineral Position", "Center");
+                                }
+                            }
+                        }
+
+                        telemetry.update();
+
+                    }
+
                 }
+
             }
 
-            Bitmap bm = Bitmap.createBitmap(img.getWidth(), img.getHeight(), Bitmap.Config.RGB_565);
-            bm.copyPixelsFromBuffer(img.getPixels());
-
-            Mat tmp = new Mat(img.getWidth(), img.getHeight(), CvType.CV_8UC4);
-            Utils.bitmapToMat(bm, tmp);
-            frame.close();
-            return tmp;
-
-        } catch(InterruptedException exc){
-            return null;
         }
 
     }

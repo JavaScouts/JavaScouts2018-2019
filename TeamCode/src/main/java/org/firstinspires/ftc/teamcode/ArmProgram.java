@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  */
 
 @TeleOp(name="FinalTeleOp")
-public class FinalTeleOp extends LinearOpMode {
+public class ArmProgram extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 

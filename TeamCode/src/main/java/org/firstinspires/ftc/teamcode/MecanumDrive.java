@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  */
 
 @TeleOp(name="TankDrive")
-public class TankDrive extends LinearOpMode {
+public class MecanumDrive extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
