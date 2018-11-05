@@ -63,14 +63,20 @@ public class FinalTeleOp extends LinearOpMode {
                 if (!LastDetent)
                     Cup.setTargetPosition(Cup.getCurrentPosition());
 
-            } else {
+            } else if (gamepad2.x) {
+                Cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Cup.setPower(0.1);
+                Cup.setTargetPosition(-138);
+
+            }else{
+
                 // we are in move so use RWE
                 Cup.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 if (gamepad2.left_stick_y > 0)
-                    Cup.setPower(0.4);
+                    Cup.setPower(gamepad2.left_stick_y);
                 else
-                    Cup.setPower(-0.4);
+                    Cup.setPower(gamepad2.left_stick_y);
             }
 
             // remember last detent state for next time around.
