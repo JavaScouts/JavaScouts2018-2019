@@ -24,6 +24,4 @@ repositories {
 apply from: 'build.release.gradle'
 
 dependencies {
-    implementation project(':zzopenCVLibrary3')
-    implementation project(':zzendercv')
 }
