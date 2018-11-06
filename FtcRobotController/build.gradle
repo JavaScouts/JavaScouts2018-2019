@@ -24,4 +24,5 @@ repositories {
 apply from: 'build.release.gradle'
 
 dependencies {
+    implementation project(':openCV3')
 }
