@@ -25,6 +25,7 @@ public class VuforiaTracking extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+    private String POSITION_GOLD;
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
     private VuforiaFrameGenerator vfg;
@@ -40,9 +41,7 @@ public class VuforiaTracking extends LinearOpMode {
         robot.rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 */
-        //initVuforia()
-
-        vfg = new VuforiaFrameGenerator(vuforia, 0);
+        initVuforia();
 
         waitForStart();
 
@@ -94,10 +93,13 @@ public class VuforiaTracking extends LinearOpMode {
 
                             if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                                 if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                                    POSITION_GOLD = "LEFT";
                                     telemetry.addData("Gold Mineral Position", "Left");
                                 } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                    POSITION_GOLD = "RIGHT";
                                     telemetry.addData("Gold Mineral Position", "Right");
                                 } else {
+                                    POSITION_GOLD = "CENTER";
                                     telemetry.addData("Gold Mineral Position", "Center");
                                 }
                             }
@@ -128,6 +130,8 @@ public class VuforiaTracking extends LinearOpMode {
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
+        telemetry.addData("Initialization", "Vuforia Complete");
+
         if(ClassFactory.getInstance().canCreateTFObjectDetector()) {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -138,7 +142,7 @@ public class VuforiaTracking extends LinearOpMode {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 
-        telemetry.addData("Initialization", "Complete.");
+        telemetry.addData("Initialization", "TFLite Complete/All Done!");
         telemetry.update();
     }
 
