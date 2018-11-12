@@ -10,21 +10,27 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by Liam on 9/8/2018.
  */
 
-@TeleOp(name="FinalTeleOp")
+@TeleOp(name = "FinalTeleOp")
 public class FinalTeleOp extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
-
+    VuforiaTracking tracking = new VuforiaTracking();
     DcMotor Cup;
     DcMotor Screw;
     Servo Ball;
     boolean LastDetent;
     boolean Detent;
+    String POSITION_GOLD;
 
 
     @Override
     public void runOpMode() {
 
+        tracking.preInit(hardwareMap, this);
+        tracking.initVuforia();
+        tracking.initTfod();
+
+        VisionThread vthread = new VisionThread();
         robot.init(hardwareMap, this);
         Cup = hardwareMap.dcMotor.get("Cup");
         Screw = hardwareMap.dcMotor.get("Screw");
@@ -38,12 +44,12 @@ public class FinalTeleOp extends LinearOpMode {
         LastDetent = true;
 
 
-
         waitForStart();
 
+        tracking.activateTfod();
+        vthread.run();
 
-
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
 
             robot.manualDrive();
             robot.moveRobot();
@@ -70,15 +76,15 @@ public class FinalTeleOp extends LinearOpMode {
                 Cup.setPower(0.1);
                 Cup.setTargetPosition(-138);
 
-            }else{
+            } else {
 
                 // we are in move so use RWE
                 Cup.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 if (gamepad2.left_stick_y > 0)
-                    Cup.setPower(gamepad2.left_stick_y);
+                    Cup.setPower(gamepad2.left_stick_y * 0.3);
                 else
-                    Cup.setPower(gamepad2.left_stick_y);
+                    Cup.setPower(gamepad2.left_stick_y * 0.3);
             }
 
             // remember last detent state for next time around.
@@ -93,14 +99,35 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("fr", robot.rightDrive.getCurrentPosition());
             telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
             telemetry.addData("br", robot.backRDrive.getCurrentPosition());
+            telemetry.addData("POSITION OF GOLD", POSITION_GOLD);
 
 
             telemetry.update();
         }
 
 
+    }
+
+    private class VisionThread implements Runnable {
+
+        public VisionThread() {
         }
 
+        public void run() {
+            try {
+                if (tracking.tfod != null) {
+                    while (POSITION_GOLD.equals("UNKNOWN") && opModeIsActive()) {
+                        POSITION_GOLD = tracking.getPosition();
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+}
+
 
 

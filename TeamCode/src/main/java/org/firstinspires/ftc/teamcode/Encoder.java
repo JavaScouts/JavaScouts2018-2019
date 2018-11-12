@@ -58,7 +58,7 @@ public class Encoder extends LinearOpMode {
 
         while(robot.leftDrive.getCurrentPosition() < robot.leftDrive.getTargetPosition() || robot.rightDrive.getCurrentPosition() <  robot.rightDrive.getTargetPosition() ||
                 robot.backLDrive.getCurrentPosition() <  robot.backLDrive.getTargetPosition() || robot.backRDrive.getCurrentPosition() <  robot.backRDrive.getTargetPosition()) { //While target has not been reached
-            waitOneFullHardwareCycle(); //Needed within all loops
+            waitOneFullHardwareCycle(); //Needed wit/hin all loops
         }
 
         robot.leftDrive.setTargetPosition(10000); //Sets motor to move 1440 ticks (1440 is one rotation for Tetrix motors)

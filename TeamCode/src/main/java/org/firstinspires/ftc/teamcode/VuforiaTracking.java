@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.internal.tfod.VuforiaFrameGenerator;
 /**
  * Created by Liam on 9/13/2018.
  */
-@TeleOp(name = "VuforiaTracking")
+
 public class VuforiaTracking {
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
