@@ -7,14 +7,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.Vuforia;
 
 
-@Autonomous(name="Auto1")
+@Autonomous(name="Auto2")
 
-public class Auto1 extends LinearOpMode {
+public class Auto2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
+    VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
+    String POSITION_GOLD;
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
@@ -32,6 +35,11 @@ public class Auto1 extends LinearOpMode {
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap, this);
+
+        tracking.preInit(hardwareMap,this);
+        tracking.initVuforia();
+        tracking.initTfod();
+
         Cup = hardwareMap.dcMotor.get("Cup");
         Screw = hardwareMap.dcMotor.get("Screw");
         Cup.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -68,12 +76,31 @@ public class Auto1 extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        tracking.activateTfod();
+        if(tracking.tfod != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (tracking.getPosition().equals("UNKNOWN")) {
+
+                        POSITION_GOLD = tracking.getPosition();
+
+                    }
+                }
+            }).start();
+        }
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(0.75,  0,  0, 0, 0, 0, 43, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(0.5, -2, 3, -2,0, 0,0,7.0);
-        encoderDrive(0.75, -15, -15, 0,0, 0,0,10.0);
 
+        encoderDrive(0.75,  0,  0, 0, 0, 0, 43, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        telemetry.addData("POSITION after first move", POSITION_GOLD);
+        telemetry.update();
+        encoderDrive(0.5, -2, 3, -2,0, 0,0,7.0);
+        telemetry.addData("POSITION after second move", POSITION_GOLD);
+        telemetry.update();
+        encoderDrive(0.75, -15, -15, 0,0, 0,0,10.0);
+        telemetry.addData("POSITION after third move", POSITION_GOLD);
+        telemetry.update();
         sleep(1000);
 
         telemetry.addData("Path", "Complete");
