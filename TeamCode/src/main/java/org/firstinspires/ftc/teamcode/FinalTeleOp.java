@@ -32,6 +32,8 @@ public class FinalTeleOp extends LinearOpMode {
 
         Cup.setDirection(DcMotorSimple.Direction.REVERSE);
         Cup.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        Screw.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        Screw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         Cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         LastDetent = true;
 
@@ -86,6 +88,13 @@ public class FinalTeleOp extends LinearOpMode {
             double right = -gamepad2.right_stick_y;
             Screw.setPower(right);
             telemetry.addData("Cup", Cup.getCurrentPosition());
+            telemetry.addData("Screw", Screw.getCurrentPosition());
+            telemetry.addData("fl", robot.leftDrive.getCurrentPosition());
+            telemetry.addData("fr", robot.rightDrive.getCurrentPosition());
+            telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
+            telemetry.addData("br", robot.backRDrive.getCurrentPosition());
+
+
             telemetry.update();
         }
 

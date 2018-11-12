@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name="Auto1")
+@Autonomous(name="Auto2")
 
-public class Auto1 extends LinearOpMode {
+public class Auto2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
     private ElapsedTime runtime = new ElapsedTime();
@@ -43,7 +43,6 @@ public class Auto1 extends LinearOpMode {
 
         robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Cup.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Screw.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -51,7 +50,6 @@ public class Auto1 extends LinearOpMode {
         robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.backRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Cup.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Screw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -60,7 +58,6 @@ public class Auto1 extends LinearOpMode {
                 robot.leftDrive.getCurrentPosition(),
                 robot.rightDrive.getCurrentPosition(),
                 robot.backLDrive.getCurrentPosition(),
-                robot.backRDrive.getCurrentPosition(),
                 Cup.getCurrentPosition(),
                 Screw.getCurrentPosition());
         telemetry.update();
@@ -70,9 +67,9 @@ public class Auto1 extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(0.75,  0,  0, 0, 0, 0, 43, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(0.5, -2, 3, -2,0, 0,0,7.0);
-        encoderDrive(0.75, -15, -15, 0,0, 0,0,10.0);
+        encoderDrive(0.75,  0,  0, 0,  0, 43, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(0.5, -5, 3, -5, 0,0,5.0);
+        encoderDrive(0.5, -30, -30, 0, 0,0,10.0);
 
         sleep(1000);
 
@@ -81,7 +78,7 @@ public class Auto1 extends LinearOpMode {
     }
 
     public void encoderDrive(double speed,
-                             double leftInches, double rightInches, double backleftInches, double backrightInches, double Cupinches, double Screwinches,
+                             double leftInches, double rightInches, double backleftInches, double Cupinches, double Screwinches,
                              double timeoutS) {
         int newLeftTarget;
         int newRightTarget;
@@ -97,13 +94,11 @@ public class Auto1 extends LinearOpMode {
             newLeftTarget = robot.leftDrive.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
             newRightTarget = robot.rightDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
             newBackLeftTarget = robot.backLDrive.getCurrentPosition() + (int)(backleftInches * COUNTS_PER_INCH);
-            newBackRightTarget = robot.backRDrive.getCurrentPosition() + (int)(backrightInches * COUNTS_PER_INCH);
             newCupTarget = Cup.getCurrentPosition() + (int)(Cupinches * COUNTS_PER_INCH);
             newScrewTarget = Screw.getCurrentPosition() + (int)(Screwinches * COUNTS_PER_INCH);
             robot.leftDrive.setTargetPosition(newLeftTarget);
             robot.rightDrive.setTargetPosition(newRightTarget);
             robot.backLDrive.setTargetPosition(newBackLeftTarget);
-            robot.backRDrive.setTargetPosition(newBackRightTarget);
             Cup.setTargetPosition(newCupTarget);
             Screw.setTargetPosition(newScrewTarget);
 
@@ -112,7 +107,6 @@ public class Auto1 extends LinearOpMode {
             robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.backLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.backRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Screw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -121,7 +115,6 @@ public class Auto1 extends LinearOpMode {
             robot.leftDrive.setPower(Math.abs(speed));
             robot.rightDrive.setPower(Math.abs(speed));
             robot.backLDrive.setPower(Math.abs(speed));
-            robot.backRDrive.setPower(Math.abs(speed));
             Cup.setPower(Math.abs(speed));
             Screw.setPower(Math.abs(speed));
 
@@ -134,21 +127,20 @@ public class Auto1 extends LinearOpMode {
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) &&
-                    (robot.leftDrive.isBusy() || robot.rightDrive.isBusy() || robot.backLDrive.isBusy() || robot.backRDrive.isBusy() || Cup.isBusy() || Screw.isBusy())) {
+                    (robot.leftDrive.isBusy() && robot.rightDrive.isBusy() && robot.backLDrive.isBusy() && Cup.isBusy() && Screw.isBusy())) {
 
                 // Display it for the driver.
                 telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
                 telemetry.addData("Path2",  "Running at %7d :%7d",
                         robot.leftDrive.getCurrentPosition(),
                         robot.rightDrive.getCurrentPosition(), robot.backLDrive.getCurrentPosition(),
-                        robot.backRDrive.getCurrentPosition(), Cup.getCurrentPosition(), Screw.getCurrentPosition());
+                         Cup.getCurrentPosition(), Screw.getCurrentPosition());
                 telemetry.update();
             }
 
             robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.backLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.backRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             Cup.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             Screw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -156,7 +148,6 @@ public class Auto1 extends LinearOpMode {
             robot.leftDrive.setPower(0);
             robot.rightDrive.setPower(0);
             robot.backLDrive.setPower(0);
-            robot.backRDrive.setPower(0);
             Cup.setPower(0);
             Screw.setPower(0);
 
