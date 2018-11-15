@@ -47,7 +47,8 @@ public class FinalTeleOp extends LinearOpMode {
         waitForStart();
 
         tracking.activateTfod();
-        vthread.run();
+        //vthread.run();
+        new Thread(vthread).start();
 
         while (opModeIsActive()) {
 
