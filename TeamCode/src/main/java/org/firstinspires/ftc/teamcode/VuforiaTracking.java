@@ -97,6 +97,7 @@ public class VuforiaTracking {
             if (updatedRecognitions != null) {
 
                 om.telemetry.addData("# Object Detected", updatedRecognitions.size());
+                om.telemetry.update();
 
                 if (updatedRecognitions.size() == 3) {
 

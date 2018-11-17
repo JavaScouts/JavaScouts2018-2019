@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class FinalTeleOp extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
-    VuforiaTracking tracking = new VuforiaTracking();
+//    VuforiaTracking tracking = new VuforiaTracking();
     DcMotor Cup;
     DcMotor Screw;
     Servo Ball;
@@ -22,15 +22,14 @@ public class FinalTeleOp extends LinearOpMode {
     boolean Detent;
     String POSITION_GOLD;
 
-
     @Override
     public void runOpMode() {
 
-        tracking.preInit(hardwareMap, this);
+       /* tracking.preInit(hardwareMap, this);
         tracking.initVuforia();
         tracking.initTfod();
-
-        VisionThread vthread = new VisionThread();
+*/
+//        VisionThread vthread = new VisionThread();
         robot.init(hardwareMap, this);
         Cup = hardwareMap.dcMotor.get("Cup");
         Screw = hardwareMap.dcMotor.get("Screw");
@@ -41,14 +40,22 @@ public class FinalTeleOp extends LinearOpMode {
         Screw.setMode(DcMotor.RunMode.RESET_ENCODERS);
         Screw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         Cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.leftDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        robot.rightDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        robot.backRDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        robot.backLDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        robot.leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        robot.rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        robot.backRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        robot.backLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         LastDetent = true;
 
 
         waitForStart();
 
-        tracking.activateTfod();
+        //tracking.activateTfod();
         //vthread.run();
-        new Thread(vthread).start();
+//        new Thread(vthread).start();
 
         while (opModeIsActive()) {
 
@@ -83,9 +90,9 @@ public class FinalTeleOp extends LinearOpMode {
                 Cup.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 if (gamepad2.left_stick_y > 0)
-                    Cup.setPower(gamepad2.left_stick_y * 0.3);
+                    Cup.setPower(gamepad2.left_stick_y * 0.2);
                 else
-                    Cup.setPower(gamepad2.left_stick_y * 0.3);
+                    Cup.setPower(gamepad2.left_stick_y * 0.5);
             }
 
             // remember last detent state for next time around.
@@ -100,14 +107,13 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("fr", robot.rightDrive.getCurrentPosition());
             telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
             telemetry.addData("br", robot.backRDrive.getCurrentPosition());
-            telemetry.addData("POSITION OF GOLD", POSITION_GOLD);
-
 
             telemetry.update();
         }
 
 
     }
+/*
 
     private class VisionThread implements Runnable {
 
@@ -117,16 +123,17 @@ public class FinalTeleOp extends LinearOpMode {
         public void run() {
             try {
                 if (tracking.tfod != null) {
+                    POSITION_GOLD = "UNKNOWN";
                     while (POSITION_GOLD.equals("UNKNOWN") && opModeIsActive()) {
                         POSITION_GOLD = tracking.getPosition();
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+*/
 
 }
 

@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
+
 
 @Autonomous(name = "Auto2")
 
@@ -38,23 +40,23 @@ public class Auto2 extends LinearOpMode {
         tracking.preInit(hardwareMap, this);
         tracking.initVuforia();
         tracking.initTfod();
-        VisionThread vthread = new VisionThread();
 
         Cup = hardwareMap.dcMotor.get("Cup");
         Screw = hardwareMap.dcMotor.get("Screw");
         Cup.setDirection(DcMotorSimple.Direction.REVERSE);
 
+//        VisionThread vthread = new VisionThread();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
 
-        robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Cup.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Screw.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.leftDrive.setMode(STOP_AND_RESET_ENCODER);
+        robot.rightDrive.setMode(STOP_AND_RESET_ENCODER);
+        robot.backRDrive.setMode(STOP_AND_RESET_ENCODER);
+        robot.backLDrive.setMode(STOP_AND_RESET_ENCODER);
+        Cup.setMode(STOP_AND_RESET_ENCODER);
+        Screw.setMode(STOP_AND_RESET_ENCODER);
 
         robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -63,40 +65,60 @@ public class Auto2 extends LinearOpMode {
         Cup.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Screw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Send telemetry message to indicate successful Encoder reset
-        telemetry.addData("Path0", "Starting at %7d :%7d",
-                robot.leftDrive.getCurrentPosition(),
-                robot.rightDrive.getCurrentPosition(),
-                robot.backLDrive.getCurrentPosition(),
-                robot.backRDrive.getCurrentPosition(),
-                Cup.getCurrentPosition(),
-                Screw.getCurrentPosition());
-        telemetry.update();
+
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         tracking.activateTfod();
-
-        vthread.run();
+        POSITION_GOLD = tracking.getPosition();
+        telemetry.addData("Position before move", POSITION_GOLD);
+        telemetry.update();
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        telemetry.addData("POSITION after first move", POSITION_GOLD);
+        POSITION_GOLD = tracking.getPosition();
+        telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
-        encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
-        telemetry.addData("POSITION after second move", POSITION_GOLD);
-        telemetry.update();
-        encoderDrive(0.75, -3000, -3000,-3000, -3000, 0, 0, 10.0);
-        telemetry.addData("POSITION after third move", POSITION_GOLD);
-        telemetry.update();
-        sleep(1000);
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-        telemetry.addData("POSITION after completion", POSITION_GOLD);
-        telemetry.update();
+        if (POSITION_GOLD.equals("LEFT")) {
+            encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
+            encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
+            encoderDrive(0.5, 800, -800, 800, -800, 0, 0, 3.0);
+            encoderDrive(0.5, -2900, -2900, -2900, -2900, 0, 0, 4.0);
+            encoderDrive(0.5, 1200, -1200, 1200, -1200, 0, 0, 3.0);
+            encoderDrive(0.75, -1000, -350, -350, -350, 0, 0, 2.0);
+            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            encoderDrive(0.75, -500, 500, -500, 500, 0, 0, 4.0);
+            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 5.0);
+            sleep(1000);
+            telemetry.addData("Path", "Complete");
+            telemetry.update();
+        } else if (POSITION_GOLD.equals("CENTER")) {
+            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+            encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+            encoderDrive(0.5, 80, -80, 80, -80, 0, 0, 3.0);
+            encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+            encoderDrive(0.5, 1900, -1900, 1900, -1900, 0, 0, 5.0);
+            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            encoderDrive(0.75, -550, 550, -550, 550, 0, 0, 4.0);
+            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+
+
+        } else {
+            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+            encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
+            encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
+            encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+            encoderDrive(0.5, 1500, -1500, 1500, -1500, 0, 0, 4.0);
+            encoderDrive(0.75, 2500, 2500, 2500, 2500, 0, 0, 3.0);
+            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            encoderDrive(0.75, -550, 550, -550, 550, 0, 0, 4.0);
+            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+
+        }
     }
 
     public void encoderDrive(double speed,
@@ -159,10 +181,10 @@ public class Auto2 extends LinearOpMode {
             Screw.setPower(0);
 
 
-            sleep(250);   // optional pause after each move
+            sleep(100);   // optional pause after each move
         }
     }
-
+/*
     private class VisionThread implements Runnable {
 
         public VisionThread() {
@@ -181,5 +203,5 @@ public class Auto2 extends LinearOpMode {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 }
