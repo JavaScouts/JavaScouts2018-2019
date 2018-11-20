@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /**
  * Created by Liam on 9/8/2018.
  */
-
+@Disabled
 @TeleOp(name="MecanumDRRIIIIVE")
 public class MecanumDrive extends LinearOpMode {
 

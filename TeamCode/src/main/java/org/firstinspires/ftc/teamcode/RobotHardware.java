@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,11 +30,19 @@ public class RobotHardware {
     DcMotor backLDrive;
     DcMotor backRDrive;
 
-    public ColorSensor color;
+    DcMotor cup;
+    DcMotor screw;
 
-    private double  driveAxial      = 0 ;   // Positive is forward
-    private double  driveLateral    = 0 ;   // Positive is right
-    private double  driveYaw        = 0 ;   // Positive is CCW
+    Servo ball;
+
+    GyroSensor gyro;
+    ModernRoboticsI2cRangeSensor range;
+
+    private double driveAxial = 0;   // Positive is forward
+    private double driveLateral = 0;   // Positive is right
+    private double driveYaw = 0;   // Positive is CCW
+    static final double HEADING_THRESHOLD = 1;      // As tight as we can make it with an integer gyro
+    static final double P_TURN_COEFF = 0.1;
     private LinearOpMode myOpMode;
 
     private HardwareMap map;
@@ -51,6 +61,15 @@ public class RobotHardware {
         rightDrive = map.dcMotor.get("fr");
         backLDrive = map.dcMotor.get("bl");
         backRDrive = map.dcMotor.get("br");
+
+        cup = map.dcMotor.get("Cup");
+        screw = map.dcMotor.get("Screw");
+        cup.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        ball = map.servo.get("Ball");
+
+        gyro = map.get(GyroSensor.class, "g");
+        range = map.get(ModernRoboticsI2cRangeSensor.class, "r");
 
         leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         backLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -71,7 +90,27 @@ public class RobotHardware {
 
     }
 
-    void manualDrive()  {
+    void setMode(DcMotor.RunMode mode) {
+
+        leftDrive.setMode(mode);
+        rightDrive.setMode(mode);
+        backLDrive.setMode(mode);
+        backRDrive.setMode(mode);
+        cup.setMode(mode);
+        screw.setMode(mode);
+
+    }
+
+    void setPower(double power) {
+
+        leftDrive.setPower(power);
+        rightDrive.setPower(power);
+        backLDrive.setPower(power);
+        backRDrive.setPower(power);
+
+    }
+
+    void manualDrive() {
         // In this mode the Left stick moves the robot fwd & back, and Right & Left.
         // The Right stick rotates CCW and CW.
 
@@ -81,6 +120,60 @@ public class RobotHardware {
         setYaw(myOpMode.gamepad1.right_stick_x);
 
     }
+
+    public void gyroTurn(double speed, double angle) {
+
+        // keep looping while we are still active, and not on heading.
+        while (myOpMode.opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF)) {
+
+        }
+    }
+
+    Boolean onHeading(double speed, double angle, double PCoeff) {
+        double error;
+        double steer;
+        boolean onTarget = false;
+        double leftSpeed;
+        double rightSpeed;
+
+        // determine turn power based on +/- error
+        error = getError(angle);
+
+        if (Math.abs(error) <= HEADING_THRESHOLD) {
+            steer = 0.0;
+            leftSpeed = 0.0;
+            rightSpeed = 0.0;
+            onTarget = true;
+        } else {
+            steer = getSteer(error, PCoeff);
+            rightSpeed = speed * steer;
+            leftSpeed = -rightSpeed;
+        }
+
+        // Send desired speeds to motors.
+        leftDrive.setPower(leftSpeed);
+        rightDrive.setPower(rightSpeed);
+        backLDrive.setPower(leftSpeed);
+        backRDrive.setPower(rightSpeed);
+        return onTarget;
+    }
+
+    public double getError(double targetAngle) {
+
+        double robotError;
+
+        // calculate error in -179 to +180 range  (
+        robotError = targetAngle - gyro.getHeading();
+        while (robotError > 180)  robotError -= 360;
+        while (robotError <= -180) robotError += 360;
+        return robotError;
+    }
+
+
+    public double getSteer(double error, double PCoeff) {
+        return Range.clip(error * PCoeff, -1, 1);
+    }
+
 
     private void moveRobot(double axial, double lateral, double yaw) {
 

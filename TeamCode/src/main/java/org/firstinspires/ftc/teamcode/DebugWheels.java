@@ -10,16 +10,10 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by Liam on 9/8/2018.
  */
 
-@TeleOp(name="ArmProgram")
-public class ArmProgram extends LinearOpMode {
+@TeleOp(name = "Debug Wheels")
+public class DebugWheels extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
-
-    DcMotor Cup;
-    DcMotor Screw;
-    Servo Ball;
-    boolean LastDetent;
-    boolean Detent;
 
     @Override
     public void runOpMode() {
@@ -28,11 +22,7 @@ public class ArmProgram extends LinearOpMode {
 
         waitForStart();
 
-
-
-        while(opModeIsActive()) {
-
-
+        while (opModeIsActive()) {
 
             double left = -gamepad1.left_stick_y;
             double right = -gamepad1.right_stick_y;
@@ -44,18 +34,14 @@ public class ArmProgram extends LinearOpMode {
             robot.backLDrive.setPower(left2);
             robot.backRDrive.setPower(right2);
 
-
-
-
-        }
-
-
-
-
-
+            telemetry.addData("fl", robot.leftDrive.getCurrentPosition());
+            telemetry.addData("fr", robot.rightDrive.getCurrentPosition());
+            telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
+            telemetry.addData("br", robot.backRDrive.getCurrentPosition());
 
         }
 
     }
 
+}
 

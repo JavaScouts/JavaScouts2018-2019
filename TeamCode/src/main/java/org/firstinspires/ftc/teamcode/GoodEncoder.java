@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,8 +11,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Created by Liam on 8/16/2018.
  */
 
+@Disabled
 @Autonomous(name="Goodencoder")
-
 public class GoodEncoder extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();

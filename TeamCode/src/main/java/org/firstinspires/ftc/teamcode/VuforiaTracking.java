@@ -128,11 +128,11 @@ public class VuforiaTracking {
 
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            POSITION_GOLD = "LEFT";
+                            result = "LEFT";
                         } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            POSITION_GOLD = "RIGHT";
+                            result = "RIGHT";
                         } else {
-                            POSITION_GOLD = "CENTER";
+                            result = "CENTER";
                         }
                     }
                 }
@@ -141,8 +141,12 @@ public class VuforiaTracking {
 
         }
 
-        result = POSITION_GOLD;
-        return result;
+        if(result != null) {
+            return result;
+        } else {
+            return "UNKNOWN";
+        }
+
 
     }
 
