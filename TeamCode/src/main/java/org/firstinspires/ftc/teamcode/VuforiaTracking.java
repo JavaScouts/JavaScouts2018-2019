@@ -68,6 +68,7 @@ public class VuforiaTracking {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfodParameters.minimumConfidence = 0.69;
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
             om.telemetry.addData("Initialization", "TFOD Complete");
@@ -95,9 +96,6 @@ public class VuforiaTracking {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
             if (updatedRecognitions != null) {
-
-                om.telemetry.addData("# Object Detected", updatedRecognitions.size());
-                om.telemetry.update();
 
                 if (updatedRecognitions.size() == 3) {
 
@@ -147,6 +145,24 @@ public class VuforiaTracking {
             return "UNKNOWN";
         }
 
+
+    }
+
+    int getNumberRecognitions() {
+
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+            if (updatedRecognitions != null) {
+
+                return updatedRecognitions.size();
+
+            }
+        }
+
+        return 0;
 
     }
 

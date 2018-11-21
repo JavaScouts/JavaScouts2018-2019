@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  */
 @Disabled
 @TeleOp(name="MecanumDRRIIIIVE")
-public class MecanumDrive extends LinearOpMode {
+public class ZMecanumDrive extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 

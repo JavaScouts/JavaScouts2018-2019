@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Disabled
 @Autonomous(name="Goodencoder")
-public class GoodEncoder extends LinearOpMode {
+public class ZEncoder2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 

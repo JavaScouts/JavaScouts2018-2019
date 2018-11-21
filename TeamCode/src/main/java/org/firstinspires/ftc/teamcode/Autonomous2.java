@@ -1,50 +1,56 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.Vuforia;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
+/**
+ * Created by Liam on 9/8/2018.
+ */
 
-@Autonomous(name = "Final Autonomous 2")
-
+@Autonomous(name = "Final Autonomous2")
 public class Autonomous2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
+
     VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
-    private String POSITION_GOLD = "UNKNOWN";
+    String POSITION_GOLD = "UNKNOWN";
 
     @Override
     public void runOpMode() {
 
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
         robot.init(hardwareMap, this);
+
+        robot.gyro.calibrate();
+        // make sure the gyro is calibrated before continuing
+
+        while (!isStopRequested() && robot.gyro.isCalibrating()) {
+            sleep(50);
+            idle();
+        }
 
         tracking.preInit(hardwareMap, this);
         tracking.initVuforia();
         tracking.initTfod();
 
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Resetting Encoders");    //
-        telemetry.update();
-
         robot.setMode(STOP_AND_RESET_ENCODER);
 
         robot.setMode(RUN_USING_ENCODER);
 
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
+        while (!isStarted()) {
+            telemetry.addData(">", "Robot Heading = %d", robot.gyro.getIntegratedZValue());
+            telemetry.update();
+        }
+
+        robot.gyro.resetZAxisIntegrator();
 
         tracking.activateTfod();
         POSITION_GOLD = tracking.getPosition();
@@ -58,30 +64,26 @@ public class Autonomous2 extends LinearOpMode {
         POSITION_GOLD = tracking.getPosition();
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
-        if(POSITION_GOLD == null) {
-            telemetry.addData("ERROR", "NULL");
+        if (POSITION_GOLD.equals("LEFT")) {
+            encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
+            encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
+
+
+        } else if (POSITION_GOLD.equals("CENTER")) {
+            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+            encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+            robot.gyroTurn(0.5, -9);
+            encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+
+
+        } else {
+            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+            encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
+            robot.gyroTurn(0.5, -25);
+            encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+
         }
-
-            else {
-
-                if (POSITION_GOLD.equals("LEFT")) {
-                    encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
-                    encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
-                    encoderDrive(0.5, 800, -800, 800, -800, 0, 0, 3.0);
-
-                } else if (POSITION_GOLD.equals("CENTER")) {
-                    encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                    encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
-                    encoderDrive(0.5, 80, -80, 80, -80, 0, 0, 3.0);
-
-                } else {
-                    encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                    encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
-                    encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
-
-                }
-            }
-        }
+    }
 
     public void encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
@@ -91,12 +93,12 @@ public class Autonomous2 extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            robot.leftDrive.setTargetPosition( (int) leftCounts + robot.leftDrive.getCurrentPosition());
-            robot.rightDrive.setTargetPosition( (int) rightCounts + robot.rightDrive.getCurrentPosition());
-            robot.backLDrive.setTargetPosition( (int) backleftCounts + robot.backLDrive.getCurrentPosition());
-            robot.backRDrive.setTargetPosition( (int) backrightCounts + robot.backRDrive.getCurrentPosition());
+            robot.leftDrive.setTargetPosition((int) leftCounts + robot.leftDrive.getCurrentPosition());
+            robot.rightDrive.setTargetPosition((int) rightCounts + robot.rightDrive.getCurrentPosition());
+            robot.backLDrive.setTargetPosition((int) backleftCounts + robot.backLDrive.getCurrentPosition());
+            robot.backRDrive.setTargetPosition((int) backrightCounts + robot.backRDrive.getCurrentPosition());
             robot.cup.setTargetPosition((int) CupCounts + robot.cup.getCurrentPosition());
-            robot.screw.setTargetPosition( (int) ScrewCounts + robot.screw.getCurrentPosition());
+            robot.screw.setTargetPosition((int) ScrewCounts + robot.screw.getCurrentPosition());
 
             // Turn On RUN_TO_POSITION
             robot.setMode(RUN_TO_POSITION);
@@ -138,3 +140,5 @@ public class Autonomous2 extends LinearOpMode {
     }
 
 }
+
+

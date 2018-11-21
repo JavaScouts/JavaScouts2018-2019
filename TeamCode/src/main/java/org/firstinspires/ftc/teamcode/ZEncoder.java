@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Disabled
 @Autonomous(name="Encodertt")
-public class Encoder extends LinearOpMode {
+public class ZEncoder extends LinearOpMode {
 
 
     RobotHardware robot = new RobotHardware();

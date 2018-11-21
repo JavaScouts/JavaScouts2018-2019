@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 /**
  * Created by Liam on 9/8/2018.
  */
@@ -15,6 +17,8 @@ public class FinalTeleOp extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
+    //VuforiaTracking tracking = new VuforiaTracking();
+
     boolean LastDetent;
     boolean Detent;
     double power = 0.2;
@@ -23,7 +27,10 @@ public class FinalTeleOp extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap, this);
-
+      /*  tracking.preInit(hardwareMap,this);
+        tracking.initVuforia();
+        tracking.initTfod();
+*/
         robot.cup.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.cup.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.screw.setMode(DcMotor.RunMode.RESET_ENCODERS);
@@ -37,9 +44,20 @@ public class FinalTeleOp extends LinearOpMode {
         robot.rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         robot.backRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         robot.backLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        robot.gyro.calibrate();
+        // make sure the gyro is calibrated before continuing
+        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }*/
+
+        //robot.gyro.resetZAxisIntegrator();
+
         LastDetent = true;
 
         waitForStart();
+//        tracking.activateTfod();
+
 
         while (opModeIsActive()) {
 
@@ -115,6 +133,8 @@ public class FinalTeleOp extends LinearOpMode {
             // remember last detent state for next time around.
             LastDetent = Detent;
 
+//            telemetry.addData("gold position",tracking.getPosition());
+
             double right = -gamepad2.right_stick_y;
             robot.screw.setPower(right);
             telemetry.addData("cup", robot.cup.getCurrentPosition());
@@ -123,6 +143,8 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("fr", robot.rightDrive.getCurrentPosition());
             telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
             telemetry.addData("br", robot.backRDrive.getCurrentPosition());
+            telemetry.addData("range", robot.range.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("heading", robot.gyro.getIntegratedZValue());
 
             telemetry.update();
         }
