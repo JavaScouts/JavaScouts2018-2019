@@ -26,6 +26,8 @@ GRIP is the Graphically Represented Image Processing Engine. It provides a graph
 
 ![](att2-grip2.PNG)
 
+
+
 **3. Apply mask and track contours**
 
 ![](att2-grip3.PNG)
@@ -96,10 +98,12 @@ Autonomous1.java
 ```java
 /*
     we create a new thread, 
-    separate from the main thread in order to run the vision processing while the robot is moving.
+    separate from the main thread in order to run 
+    the vision processing while the robot is moving.
     the thread will only run until a valid position is found. 
     this helps with an issue with detecting more than 3 objects or less than 3.
-    however, the main thread will only check to see if the thread has returned a result after each move.
+    however, the main thread will only check to see 
+    if the thread has returned a result after each move.
 */
 
 new Thread(new Runnable() {
@@ -119,6 +123,7 @@ new Thread(new Runnable() {
 ``` 
 
 This code is one of the most vital in the entire program. After it receives it's result, it places it into a String POSITION_GOLD. When the main thread is free(after a move), it checkes POSITION_GOLD, which after several checks will almost definitely have the result. See this awesome system in action during one of our games.
+
 
 ## Future goals
 
