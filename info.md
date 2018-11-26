@@ -26,8 +26,6 @@ GRIP is the Graphically Represented Image Processing Engine. It provides a graph
 
 ![](att2-grip2.PNG)
 
-
-
 **3. Apply mask and track contours**
 
 ![](att2-grip3.PNG)
@@ -123,7 +121,6 @@ new Thread(new Runnable() {
 ``` 
 
 This code is one of the most vital in the entire program. After it receives it's result, it places it into a String POSITION_GOLD. When the main thread is free(after a move), it checkes POSITION_GOLD, which after several checks will almost definitely have the result. See this awesome system in action during one of our games.
-
 
 ## Future goals
 
