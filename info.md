@@ -18,15 +18,15 @@ OpenCV has been more well documented by FTC teams than Vuforia has. There are se
 
 GRIP is the Graphically Represented Image Processing Engine. It provides a graphical interface, in which you can transform an input to detect certain things. The wide variety of processing GRIP has availble, and the **ability to export one's transformations into Java code** made it seem like a likely contender for being effective. I first created a series of transformations which would isolate certain aspects of the gold and silver minerals.
 
-1. Blur to remove noise
+**1. Blur to remove noise**
 
 ![](att2-grip.PNG)
 
-2. Isolate gold mineral by hue
+**2. Isolate gold mineral by hue**
 
 ![](att2-grip2.PNG)
 
-3. Apply mask and track contours
+**3. Apply mask and track contours**
 
 ![](att2-grip3.PNG)
 
