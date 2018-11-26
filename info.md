@@ -1,4 +1,4 @@
-# Detecting the minerals in Autonomous
+# Evolution of the image processing system
 
 The main goal of our image recognition is to detect the position of the minerals using a webcam(Logitech C920), in order to knock the gold of its post.
 
@@ -12,25 +12,31 @@ However, **the implementation of detecting these objects in an android app was n
 
 ## Attempt 2 - Vuforia → OpenCV → EnderCV 
 
-OpenCV has been more well documented by FTC teams than Vuforia has. There are several libraries and tools which I discovered which had the possibility of working for detecting the minerals. One library, EnderCV, developed by team 5484 the EnderBots(who may or may not be at this competition), had all of the basics which I was looking to implement. Their library has classes, which, with one implementation could detect colors in an image and report their relative location to an OpMode. **However, the major drawback, which ended up not allowing us to use this fantastic library, is my relative failure to figure out how to use it with a webcam.** All of its vuforia-calling methods are in several factories and generators, and I could not for the life of me figure out how to change what should have been 3 lines of code to use the webcam instead of the phone. In the documentation to EnderCV I did find the program GRIP, which I would use for the next attempt.
+OpenCV has been more well documented by FTC teams than Vuforia has. There are several libraries and tools which I discovered which had the possibility of working for detecting the minerals. One library, EnderCV, developed by team 5484 the EnderBots(who may or may not be at this competition), had all of the basics which I was looking to implement. Their library has classes, which, with one implementation could detect colors in an image and report their relative location to an OpMode. 
+
+**However, the major drawback, which ended up not allowing us to use this fantastic library, is my relative failure to figure out how to use it with a webcam.** All of its vuforia-calling methods are in several factories and generators, and I could not for the life of me figure out how to change what should have been 3 lines of code to use the webcam instead of the phone. In the documentation to EnderCV I did find the program GRIP, which I would use for the next attempt.
 
 ## Attempt 3 - Vuforia → GRIP
 
 GRIP is the Graphically Represented Image Processing Engine. It provides a graphical interface, in which you can transform an input to detect certain things. The wide variety of processing GRIP has availble, and the **ability to export one's transformations into Java code** made it seem like a likely contender for being effective. I first created a series of transformations which would isolate certain aspects of the gold and silver minerals.
 
-**1. Blur to remove noise**
+### 1. Blur to remove noise
 
 ![](att2-grip.PNG)
 
-**2. Isolate gold mineral by hue**
+### 2. Isolate gold mineral by hue**
 
 ![](att2-grip2.PNG)
 
-**3. Apply mask and track contours**
+### 3. Apply mask and track contours**
 
 ![](att2-grip3.PNG)
 
 GRIP was going well, when FTC changed our whole gameplan with the release of FTC SDK 4.2.
+
+## Attempt 3.5 - Vuforia → OpenCV → DogeCV
+
+Developed by the mechanical masterminds, DogeCV is another image recognition which claimed to recognize colors. However, this was merely a side project as I concentrated on GRIP.
 
 ## Attempt 4 - Vuforia → Tensorflow Model
 
