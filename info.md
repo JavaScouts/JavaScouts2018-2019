@@ -151,6 +151,127 @@ This code is one of the most vital in the entire program. After it receives it's
   - This will get us down to a hopefully correct 3 object system.
   - An issue: we usually can get down to a 3 object system after a certain amount of time. So, we make var called minimumCycles that has to be reached before the actual exceptions can be used.
   
+  
+# Information on mecanum drive algorithm
+
+Philbot's code for omnidirectional drive of a three-wheeled system gave me the inspiration to try and develop it for a mecanum system. The code for the algorithm is as follows.
+
+```java
+void manualDrive() {
+    // In this mode the Left stick moves the robot fwd & back, and Right & Left.
+    // The Right stick rotates CCW and CW.
+    setAxial(-myOpMode.gamepad1.left_stick_y);
+    setLateral(myOpMode.gamepad1.left_stick_x);     
+    setYaw(myOpMode.gamepad1.right_stick_x);
+}
+
+void moveRobot() {
+    // calculate required motor powers to acheive axis motions
+    double backL = driveAxial - driveLateral + driveYaw;
+    double backR = driveAxial + driveLateral - driveYaw;
+    double left = driveAxial + driveLateral + driveYaw;
+    double right = driveAxial - driveLateral - driveYaw;
+
+    // normalize all motor speeds
+    double max = Math.max(Math.abs(left), Math.abs(right));
+    max = Math.max(max, Math.abs(backL));
+    max = Math.max(max, Math.abs(backR));
+    if (max > 1.0) {
+        backR /= max;
+        backL /= max;
+        right /= max;
+        left /= max;
+    }
+
+    // set drive motor powers
+    backLDrive.setPower(backL);
+    backRDrive.setPower(backR);
+    leftDrive.setPower(left);
+    rightDrive.setPower(right);
+
+    // Display Telemetry
+    myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+    myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backL, backR);
+
+}
+```
+
+This code may look like a bunch of math, because that is exactly what it is.
+Let us take a look at the cases which we used to determine how to create this algorithm.
+It is important to note that we drive by translating with the left joystick, and rotating with the right joystick. In this way, controlling the robot is as easy as controlling a first-person-shooter type game (aim with right, move with left).
+Also, it is important to note that the directions axial, lateral, and yaw can be represented as below:
+
+'''
+                  (+ axial)     ⟳ = (+ yaw)  ⟲ = (- yaw)
+                      ↑
+      (- lateral) ← robot → (+ lateral)
+                      ↓
+                  (- axial)
+'''
+
+There have been many studies on the kinematics (motion science) of mecanum wheels, so here is a comprehensive diagram, sourced from a [Chinese study](https://research.ijcaonline.org/volume113/number3/pxc3901586.pdf)(for the link to this study, see our booth):
+
+![](mecanum_kinematics.png)
+
+### Driving Straight
+
+To drive straight, all motors should be outputted with the same, positive power. Since forwards and backwards movement is controlled by the axial variable, when we attempt to drive forwards, a positive axial power will be set. To drive all of the motors in the correct way , all motor powers should first have a positive axial. After this step, we have:
+
+```java
+double backL = driveAxial;
+double backR = driveAxial;
+double left = driveAxial;
+double right = driveAxial;
+```
+
+### Driving Right
+
+To drive right, according to the diagram, the front-left and back-right motors should move forwards, and the back-left and front-right motors should move backwards. So, when the algorithm receives input of lateral movement, it should move the above mentioned motors. After this step, we have:
+
+```java
+double backL = driveAxial - driveLateral;
+double backR = driveAxial + driveLateral;
+double left = driveAxial + driveLateral;
+double right = driveAxial - driveLateral;
+```
+
+Testing this stage allows us to see that the translatative aspect of our drive-system works as planned.
+
+### Turning Right
+
+To turn right, according to the diagram, the left motors should move backwards, and the right motors should move forwards. So, when the algorithm receives input of yaw movement, it should move the motors mentioned above in the way mentioned above. After this step, we have:
+```java
+double backL = driveAxial - driveLateral + driveYaw;
+double backR = driveAxial + driveLateral - driveYaw;
+double left = driveAxial + driveLateral + driveYaw;
+double right = driveAxial - driveLateral - driveYaw;
+```
+
+A watchful observer may notice that this is the final algorithm, used in the actual code.
+
+### What about the reverses?
+
+Well, if a negative is passed into axial, lateral, or yaw, it should be processed the same way as the positives and still produce the correct outputs. A simple test of this proved that indeed, the algorithm worked!
+
+### Fixing issues
+
+Testing this program at this stage should make anyone watching realize that something is wrong. Two lines of code at the end of running the algorithm, the telemetry, will show the user what powers the motors are receiving. Oh no! Some of them are greater than one, and even if they are different, they will be rounded down to one. 
+
+```java
+double max = Math.max(Math.abs(left), Math.abs(right));
+    max = Math.max(max, Math.abs(backL));
+    max = Math.max(max, Math.abs(backR));
+    if (max > 1.0) {
+        backR /= max;
+        backL /= max;
+        right /= max;
+        left /= max;
+}
+```
+
+Of course, we only need to normalize if some values are greater than one, so `if (max > 1.0) {...}` will streamline things.
+With that, the mecanum drive algorithm works completely, and you can see it in action on the field!
+
 ## Questions? Contact Javascouts in the booth or at javascouts@gmail.com!
   
         
