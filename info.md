@@ -190,8 +190,8 @@ void moveRobot() {
     rightDrive.setPower(right);
 
     // Display Telemetry
-    myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-    myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backL, backR);
+    myOpMode.telemetry.addData("Axes ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+    myOpMode.telemetry.addData("Power", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]",left,right,backL,backR);
 
 }
 ```
