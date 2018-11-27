@@ -201,13 +201,13 @@ Let us take a look at the cases which we used to determine how to create this al
 It is important to note that we drive by translating with the left joystick, and rotating with the right joystick. In this way, controlling the robot is as easy as controlling a first-person-shooter type game (aim with right, move with left).
 Also, it is important to note that the directions axial, lateral, and yaw can be represented as below:
 
-'''
-                  (+ axial)     ⟳ = (+ yaw)  ⟲ = (- yaw)
-                      ↑
-      (- lateral) ← robot → (+ lateral)
-                      ↓
-                  (- axial)
-'''
+
+                      (+ axial)     ⟳ = (+ yaw)  ⟲ = (- yaw)
+                          ↑
+          (- lateral) ← robot → (+ lateral)
+                          ↓
+                      (- axial)
+  
 
 There have been many studies on the kinematics (motion science) of mecanum wheels, so here is a comprehensive diagram, sourced from a [Chinese study](https://research.ijcaonline.org/volume113/number3/pxc3901586.pdf)(for the link to this study, see our booth):
 
