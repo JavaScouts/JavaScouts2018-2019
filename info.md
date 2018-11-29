@@ -4,7 +4,7 @@ The main goals of the algorithms detailed on the following pages is to:
 1. Make the robot more effective in autonomous
 2. Make the robot easier for the drivers to control
 
-The first goal is achieved through the Tensorflow algorithm. By processing the image gathered by the webcam and using Tensorflow to detect the position of the gold mineral. By using this data to determine which mineral to drive to and knock off, we score more points more reliably in autonomous than with another method, say color sensor.
+The first goal is achieved through the Tensorflow algorithm. By processing the image gathered by the webcam and using Tensorflow to detect the position of the gold mineral *while the robot is moving*, we save a great deal of time compared to running in linear time. By using this data to determine which mineral to drive to and knock off, we score more points more reliably and faster than with another method, say color sensor.
 
 The second goal is achieved through the Mecanum algorithm. Mecanum wheels provide omnidirectional movement, and without the proper algorithm a driver would not be able to realize its full potential. True omnidirectional and omnirotational movement can be achieved only through combining a variety of driver inputs in order to produce the nessecary driver output. Our driving system is based off of the movement of most games nowadays, where moving is controlled using the left stick and looking around (or in our case, rotating) is controlled using the right stick. Our algorithm makes it easy for the driver to do this!
 
