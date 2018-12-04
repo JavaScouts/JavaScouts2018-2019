@@ -22,15 +22,15 @@ public class FinalTeleOp extends LinearOpMode {
     boolean LastDetent;
     boolean Detent;
     double power = 0.2;
+    double pos = 0;
+    boolean moved = false;
 
     @Override
     public void runOpMode() {
 
         robot.init(hardwareMap, this);
-      /*  tracking.preInit(hardwareMap,this);
-        tracking.initVuforia();
-        tracking.initTfod();
-*/
+
+        //not sure what this mess does but i don't trust myself to fix it
         robot.cup.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.cup.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.screw.setMode(DcMotor.RunMode.RESET_ENCODERS);
@@ -45,18 +45,10 @@ public class FinalTeleOp extends LinearOpMode {
         robot.backRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         robot.backLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         robot.gyro.calibrate();
-        // make sure the gyro is calibrated before continuing
-        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }*/
-
-        //robot.gyro.resetZAxisIntegrator();
-
         LastDetent = true;
+        moved = false;
 
         waitForStart();
-//        tracking.activateTfod();
 
 
         while (opModeIsActive()) {
@@ -64,14 +56,32 @@ public class FinalTeleOp extends LinearOpMode {
             robot.manualDrive();
             robot.moveRobot();
 
-            if (gamepad2.a) {
+            //refer to control diagram for how to control our robot, and an explanation of all this stuff
+            /*if (gamepad2.a) {
                 robot.ball.setPosition(1.0);
             } else if (gamepad2.b) {
                 robot.ball.setPosition(0);
             } else if (gamepad2.y){
                 robot.ball.setPosition(0.9);
             }
+*/
 
+            if(gamepad2.a) {
+                pos = 0.37;
+                moved = true;
+            }
+            if(gamepad2.b) {
+                pos = 0.0;
+                moved = true;
+            }
+            if(gamepad2.y) {
+                pos = 0.5;
+                moved = true;
+            }
+            if(moved) {
+                robot.ball.setPosition(pos);
+            }
+            //use dpad to drive robot slowly
             if(gamepad1.dpad_left) {
 
                 robot.backLDrive.setPower(power);
@@ -102,7 +112,7 @@ public class FinalTeleOp extends LinearOpMode {
 
             }
 
-
+            //this system is effective for moving the arm and holding it in position.
             Detent = (Math.abs(gamepad2.left_stick_y) <= 0.1);
             // check for hold or move
             if (Detent) {
@@ -133,10 +143,10 @@ public class FinalTeleOp extends LinearOpMode {
             // remember last detent state for next time around.
             LastDetent = Detent;
 
-//            telemetry.addData("gold position",tracking.getPosition());
-
             double right = -gamepad2.right_stick_y;
             robot.screw.setPower(right);
+
+            //add all data from sensors and encoders
             telemetry.addData("cup", robot.cup.getCurrentPosition());
             telemetry.addData("screw", robot.screw.getCurrentPosition());
             telemetry.addData("fl", robot.leftDrive.getCurrentPosition());
@@ -144,11 +154,9 @@ public class FinalTeleOp extends LinearOpMode {
             telemetry.addData("bl", robot.backLDrive.getCurrentPosition());
             telemetry.addData("br", robot.backRDrive.getCurrentPosition());
             telemetry.addData("range", robot.range.getDistance(DistanceUnit.INCH));
-//            telemetry.addData("heading", robot.gyro.getIntegratedZValue());
 
             telemetry.update();
         }
-
 
     }
 

@@ -1,43 +1,38 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.YuvImage;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-
-import java.util.List;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.tfod.VuforiaFrameGenerator;
 
-/**
- * Created by Liam on 9/13/2018.
- */
+import java.util.ArrayList;
+import java.util.List;
 
 public class VuforiaTracking {
 
+    //class adapted from the example tfod mineral detection class
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-    private String POSITION_GOLD;
+    int numDetected = 0;
+    List<Recognition> debug;
+    Boolean verbose = false;
     VuforiaLocalizer vuforia;
     TFObjectDetector tfod;
     WebcamName webcamName;
     HardwareMap hardwareMap;
     LinearOpMode om;
 
+    //constructor
     VuforiaTracking() {
 
     }
 
+    //save map and OpMode to object to use later
     void preInit(HardwareMap map, LinearOpMode opMode) {
 
         hardwareMap = map;
@@ -45,6 +40,7 @@ public class VuforiaTracking {
 
     }
 
+    //create Vuforia using webcam as camera
     void initVuforia() {
 
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -62,19 +58,20 @@ public class VuforiaTracking {
         om.telemetry.update();
     }
 
+    //create TfLite object detector
     void initTfod() {
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.69;
+            //tfodParameters.minimumConfidence = 0.4;       can be used to adjust confidence, we figured 40% is a good in-between
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
             om.telemetry.addData("Initialization", "TFOD Complete");
             om.telemetry.update();
         } else {
-            om.telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            om.telemetry.addData("Sorry!", "This device is not compatible with TFOD"); //initially we used zte speeds but after reviewing the pros and cons we decided to switch to g4 play
             om.telemetry.update();
         }
 
@@ -86,6 +83,7 @@ public class VuforiaTracking {
         }
     }
 
+    //return a string with a position in it, if none is found return unknown
     String getPosition() {
 
         String result = "UNKNOWN";
@@ -96,6 +94,8 @@ public class VuforiaTracking {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
             if (updatedRecognitions != null) {
+
+                numDetected = updatedRecognitions.size();
 
                 if (updatedRecognitions.size() == 3) {
 
@@ -116,9 +116,17 @@ public class VuforiaTracking {
                         } else {
                             silverMineral2X = (int) recognition.getLeft();
                         }
+
                     }
 
-                            /*if all are detected, if gold is to the left of both silver 1 and 2, it is in position left
+                    if(verbose) {
+
+                        debug = updatedRecognitions;
+
+                    }
+
+
+                            /*if all are detected and are distinct, if gold is to the left of both silver 1 and 2, it is in position left
                                                    if gold is to the right of both silver 1 and 2, it is in position right
                                                    any other position is the center
 
@@ -139,7 +147,8 @@ public class VuforiaTracking {
 
         }
 
-        if(result != null) {
+        //in debug we encountered a nullpointerexception so these lines are probably important
+        if (result != null) {
             return result;
         } else {
             return "UNKNOWN";
@@ -148,22 +157,33 @@ public class VuforiaTracking {
 
     }
 
+
     int getNumberRecognitions() {
 
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+        return numDetected;
 
-            if (updatedRecognitions != null) {
+    }
 
-                return updatedRecognitions.size();
+    List<Recognition> getDebug() {
 
-            }
+        if(verbose && debug != null) {
+
+            return debug;
+
+        } else {
+
+            return null;
+
         }
+    }
 
-        return 0;
 
+    public Boolean getVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(Boolean verbose) {
+        this.verbose = verbose;
     }
 
 }

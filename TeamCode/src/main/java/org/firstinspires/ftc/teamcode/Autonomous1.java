@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -11,18 +10,14 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-/**
- * Created by Liam on 9/8/2018.
- */
-
-@Autonomous(name = "Final Autonomous1")
+@Autonomous(name = "Final Autonomous 1")
 public class Autonomous1 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
     VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
-    String POSITION_GOLD = "UNKNOWN";
+    String POSITION_GOLD, pos = "UNKNOWN";
 
     @Override
     public void runOpMode() {
@@ -37,6 +32,7 @@ public class Autonomous1 extends LinearOpMode {
             idle();
         }
 
+        //init vuforia and tfod
         tracking.preInit(hardwareMap, this);
         tracking.initVuforia();
         tracking.initTfod();
@@ -45,6 +41,7 @@ public class Autonomous1 extends LinearOpMode {
 
         robot.setMode(RUN_USING_ENCODER);
 
+        //same as waitForStart(), but displays robot heading
         while (!isStarted()) {
             telemetry.addData(">", "Robot Heading = %d", robot.gyro.getIntegratedZValue());
             telemetry.update();
@@ -52,57 +49,107 @@ public class Autonomous1 extends LinearOpMode {
 
         robot.gyro.resetZAxisIntegrator();
 
+        /*
+            we create a new thread, separate from the main thread in order to run the vision processing while the robot is moving.
+            the thread will only run until a valid position is found. this helps with an issue with detecting more than 3 objects or less than 3.
+            however, the main thread will only check to see if the thread has returned a result after each move.
+         */
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (opModeIsActive() && tracking.tfod != null) {
+
+                    POSITION_GOLD = "UNKNOWN"; //combat NullPointerException
+
+                    while (POSITION_GOLD.equals("UNKNOWN")) {
+
+                        pos = tracking.getPosition();
+
+                        if (!pos.equals("UNKNOWN")) {
+                            POSITION_GOLD = pos;
+
+                        }
+                    }
+                }
+            }
+        }).start();
+
         tracking.activateTfod();
-        POSITION_GOLD = tracking.getPosition();
+
         telemetry.addData("Position before move", POSITION_GOLD);
         telemetry.update();
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
+        //lower robot
+        encoderDrive(0.75, 0, 0, 0, 0, 0, 9450, 10.0);
 
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        POSITION_GOLD = tracking.getPosition();
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
-        if (POSITION_GOLD.equals("LEFT")) {
-            encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
-            encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
-            robot.gyroTurn(0.5,-43);
-            while (robot.range.getDistance(DistanceUnit.INCH) > 6.0){
-                robot.setPower(-0.5);
-            }
-            robot.setPower(0);
-            sleep(600);
-            robot.gyroTurn(0.5, -140);
-            encoderDrive(0.75, -350, -350, -350, -350, 0, 0, 2.0);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-            robot.gyroTurn(0.5, -138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 5.0);
 
-        } else if (POSITION_GOLD.equals("CENTER")) {
-            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-            encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
-            robot.gyroTurn(0.5, -9);
-            encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
-            robot.gyroTurn(0.5,-138);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-            robot.gyroTurn(0.5,-138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+        //we use a combination of encoders and gyros and range to move the robot accurately
+        switch (POSITION_GOLD) {
+            case "LEFT":
 
-        } else {
-            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-            encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
-            encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
-            encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
-            robot.gyroTurn(0.5,-138);
-            encoderDrive(0.75, 2200, 2200, 2200, 2200, 0, 0, 3.0);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-            robot.gyroTurn(0.5,-138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+                encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 3.0);
+                encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 4.0);
+                robot.gyroTurn(0.5, -43);
 
+                while (robot.range.getDistance(DistanceUnit.INCH) > 6.0) {
+                    robot.setPower(-0.5);
+                }
+
+                robot.setPower(0);
+                sleep(600);
+                robot.gyroTurn(0.5, -140);
+                encoderDrive(0.75, -350, -350, -350, -350, 0, 0, 2.0);
+                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+                robot.gyroTurn(0.5, -132);
+                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
+//                encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
+//                robot.ball.setPosition(1.0);
+                //robot.gyroTurn(0.5, -132);
+
+                break;
+            case "CENTER":
+
+                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+                encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -9);
+                encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+                robot.gyroTurn(0.5, -138);
+                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+                robot.gyroTurn(0.5, -132);
+                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
+//                encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
+//                robot.ball.setPosition(1.0);
+                //robot.gyroTurn(0.5, -132);
+
+                break;
+            default:  //this is exception handling. it includes the "RIGHT" case and all other situations. RIGHT is the most reliable.
+
+                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
+                encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
+                encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -138);
+                encoderDrive(0.75, 2200, 2200, 2200, 2200, 0, 0, 3.0);
+                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+                robot.gyroTurn(0.5, -132);
+                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
+                encoderDrive(0.75, 0, 0, 0, 0, -850, 0, 3.0);
+                robot.ball.setPosition(1.0);
+                //robot.gyroTurn(0.5, -132);
+
+                break;
         }
+
+        robot.ball.setPosition(0.85);
+        telemetry.addLine("autonomous completed in "+Math.round(runtime.seconds())+" seconds.");
+        telemetry.update();
+
     }
 
+    //this method is adapted from the pushbot example class for encoder driving
     public void encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
                              double timeoutS) {
@@ -156,7 +203,6 @@ public class Autonomous1 extends LinearOpMode {
             sleep(100);   // optional pause after each move
         }
     }
-
 }
 
 

@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  */
 @Disabled
 @TeleOp(name="DataDrive")
-public class TelemetryDrive extends LinearOpMode {
+public class ZTelemetryDrive extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
     DcMotor mineralarm;
@@ -20,25 +20,12 @@ public class TelemetryDrive extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-//        robot.init(hardwareMap, this);
-
         mineralarm = hardwareMap.dcMotor.get("m");
         mineralservo = hardwareMap.servo.get("ms");
-
-        /*
-
-        robot.rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.backRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-*/
 
         waitForStart();
 
         while(opModeIsActive()) {
-/*
-
-            robot.manualDrive();
-            robot.moveRobot();
-*/
 
             mineralarm.setPower(gamepad2.right_stick_y * 0.15);
 

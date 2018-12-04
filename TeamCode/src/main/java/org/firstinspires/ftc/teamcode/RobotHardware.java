@@ -1,37 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.Math.abs;
-
-/**
- * Created by seed on 9/11/17.
- */
 
 public class RobotHardware {
 
-    //initialize motors
+    //initialize everything
     DcMotor leftDrive;
     DcMotor rightDrive;
     DcMotor backLDrive;
     DcMotor backRDrive;
-
     DcMotor cup;
     DcMotor screw;
 
@@ -40,16 +24,17 @@ public class RobotHardware {
     ModernRoboticsI2cGyro gyro;
     ModernRoboticsI2cRangeSensor range;
 
+    //driving coefficients
     private double driveAxial = 0;   // Positive is forward
     private double driveLateral = 0;   // Positive is right
     private double driveYaw = 0;   // Positive is CCW
-
-    static final double HEADING_THRESHOLD = 1;      // As tight as we can make it with an integer gyro
-    static final double P_TURN_COEFF = 0.1;
+    private static final double HEADING_THRESHOLD = 1;      // As tight as we can make it with an integer gyro
+    private static final double P_TURN_COEFF = 0.1;
 
     private LinearOpMode myOpMode;
     private HardwareMap map;
 
+    //constructor
     RobotHardware() {
 
     }
@@ -64,20 +49,22 @@ public class RobotHardware {
         rightDrive = map.dcMotor.get("fr");
         backLDrive = map.dcMotor.get("bl");
         backRDrive = map.dcMotor.get("br");
-
         cup = map.dcMotor.get("Cup");
         screw = map.dcMotor.get("Screw");
-        cup.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        //get servos
         ball = map.servo.get("Ball");
 
+        //get sensors
         gyro = map.get(ModernRoboticsI2cGyro.class, "g");
         range = map.get(ModernRoboticsI2cRangeSensor.class, "r");
 
+        //reverse nessecary motors
         leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         backLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
         backRDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        cup.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //STOP EVERYTHING
         moveRobot(0, 0, 0);
@@ -117,7 +104,6 @@ public class RobotHardware {
         // In this mode the Left stick moves the robot fwd & back, and Right & Left.
         // The Right stick rotates CCW and CW.
 
-        //  (note: The joystick goes negative when pushed forwards, so negate it)
         setAxial(-myOpMode.gamepad1.left_stick_y);
         setLateral(myOpMode.gamepad1.left_stick_x);
         setYaw(myOpMode.gamepad1.right_stick_x);
@@ -134,13 +120,13 @@ public class RobotHardware {
     }
 
     void moveRobot() {
-        // calculate required motor powers to acheive axis motions
+        // calculate required motor powers to achieve axis motions, based on the movement of mecanum wheels
         double backL = driveAxial - driveLateral + driveYaw;
         double backR = driveAxial + driveLateral - driveYaw;
         double left = driveAxial + driveLateral + driveYaw;
         double right = driveAxial - driveLateral - driveYaw;
 
-        // normalize all motor speeds so no values exceeds 100%.
+        // normalize all motor speeds so no values exceeds 100%
         double max = Math.max(Math.abs(left), Math.abs(right));
         max = Math.max(max, Math.abs(backL));
         max = Math.max(max, Math.abs(backR));
@@ -151,7 +137,7 @@ public class RobotHardware {
             left /= max;
         }
 
-        // Set drive motor power levels.
+        // Set drive motor power levels
         backLDrive.setPower(backL);
         backRDrive.setPower(backR);
         leftDrive.setPower(left);
@@ -175,22 +161,10 @@ public class RobotHardware {
         driveYaw = Range.clip(yaw, -1, 1);
     }
 
-    //not sure what the next 3 functions do but maybe they might be important even if they are not used
-    public void setAxialtoLateral(double axial) {
-        driveLateral = Range.clip(axial, -1, 1);
-    }
+    //the following 4 methods are adapted from the pushbot gyro example class
+    void gyroTurn(double speed, double angle) {
 
-    public void setLateraltoAxial(double lateral) {
-        driveAxial = -Range.clip(lateral, -1, 1);
-    }
-
-    public void setChangeYaw(double yaw) {
-        driveYaw = Range.clip(yaw, -1, 1);
-    }
-
-    public void gyroTurn(double speed, double angle) {
-
-        // keep looping while we are still active, and not on heading.
+        // keep looping while we are still active, and not on heading. onHeading() moves the robot.
         while (myOpMode.opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF)) {
 
             myOpMode.telemetry.update();
@@ -232,7 +206,7 @@ public class RobotHardware {
         return onTarget;
     }
 
-    public double getError(double targetAngle) {
+    double getError(double targetAngle) {
 
         double robotError;
 
@@ -243,10 +217,8 @@ public class RobotHardware {
         return robotError;
     }
 
-
-    public double getSteer(double error, double PCoeff) {
+    double getSteer(double error, double PCoeff) {
         return Range.clip(error * PCoeff, -1, 1);
     }
-
 
 }
