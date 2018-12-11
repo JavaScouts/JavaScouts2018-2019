@@ -21,7 +21,7 @@ public class FinalTeleOp extends LinearOpMode {
 
     boolean LastDetent;
     boolean Detent;
-    double power = 0.2;
+    double power = 0.4;
     double pos = 0;
     boolean moved = false;
 

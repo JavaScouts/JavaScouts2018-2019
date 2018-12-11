@@ -15,7 +15,8 @@ public class DebugTensorflow extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
     VuforiaTracking tracking = new VuforiaTracking();
-    String pos, finalpos = "UNKNOWN";
+    String pos, finalpos, elimpos = "UNKNOWN";
+    int cycles = 10;
 
     @Override
     public void runOpMode() {
@@ -24,12 +25,12 @@ public class DebugTensorflow extends LinearOpMode {
         tracking.preInit(hardwareMap, this);
         tracking.initVuforia();
         tracking.initTfod();
-
         waitForStart();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                finalpos = "UNKNOWN";
                 if (opModeIsActive() && tracking.tfod != null) {
                     while (finalpos.equals("UNKNOWN")) {
                         pos = tracking.getPosition();
@@ -38,6 +39,8 @@ public class DebugTensorflow extends LinearOpMode {
                         }
                     }
                 }
+                telemetry.addLine("Thread created with normal strategy.");
+                telemetry.update();
             }
         }).start();
 
@@ -45,33 +48,42 @@ public class DebugTensorflow extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            //display results from main thread and separate thread.
+            telemetry.addData("POS>", tracking.getPosition());
+            telemetry.addData("NUM>", tracking.getNumberRecognitions());
+            telemetry.addData("THREAD NO ELIM>", finalpos);
+            telemetry.addData("THREAD ELIM>", elimpos);
+
             tracking.setVerbose(false);
 
             double right = -gamepad2.right_stick_y;
             robot.screw.setPower(right);
+
             if(gamepad2.right_bumper) {
                 tracking.setVerbose(true);
                 telemetry.addLine("Format: #: conf, label, x, y");
                 telemetry.update();
             }
+
             if(gamepad2.left_bumper && !finalpos.equals("UNKNOWN")) {
-                finalpos = "UNKNOWN";
+                elimpos = "UNKNOWN";
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         if (opModeIsActive() && tracking.tfod != null) {
-                            while (finalpos.equals("UNKNOWN")) {
-                                pos = tracking.getPosition();
+                            while (elimpos.equals("UNKNOWN")) {
+                                pos = tracking.getPositionbyElimination(cycles);
                                 if (!pos.equals("UNKNOWN")) {
-                                    finalpos = pos;
+                                    elimpos = pos;
                                 }
                             }
                         }
                     }
                 }).start();
-                telemetry.addLine("Thread created.");
+                telemetry.addLine("Thread created with elim strategy.");
                 telemetry.update();
             }
+
             if(tracking.getVerbose()) {
 
                 List<Recognition> recognitions = tracking.getDebug();
@@ -85,10 +97,6 @@ public class DebugTensorflow extends LinearOpMode {
                 }
             }
 
-            //display results from main thread and separate thread.
-            telemetry.addData("POS>", tracking.getPosition());
-            telemetry.addData("NUM>", tracking.getNumberRecognitions());
-            telemetry.addData("THREAD>", finalpos);
             telemetry.update();
 
         }

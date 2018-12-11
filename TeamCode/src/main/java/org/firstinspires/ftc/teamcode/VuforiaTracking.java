@@ -10,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class VuforiaTracking {
@@ -26,6 +28,7 @@ public class VuforiaTracking {
     WebcamName webcamName;
     HardwareMap hardwareMap;
     LinearOpMode om;
+    Integer cycles = 0;
 
     //constructor
     VuforiaTracking() {
@@ -119,9 +122,13 @@ public class VuforiaTracking {
 
                     }
 
-                    if(verbose) {
+                    if (verbose) {
 
                         debug = updatedRecognitions;
+
+                    } else {
+
+                        debug = null;
 
                     }
 
@@ -157,6 +164,105 @@ public class VuforiaTracking {
 
     }
 
+    String getPositionbyElimination(Integer elimCycles) {
+
+        String result = "UNKNOWN";
+
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+            if (updatedRecognitions != null) {
+
+                numDetected = updatedRecognitions.size();
+
+                if (updatedRecognitions.size() == 3) {
+
+                    //-1 means not yet detected
+
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+                    int silverMineral2X = -1;
+
+                    //loop through all the found objects, and label each with their respective x values(there should be three distinct)
+
+                    for (Recognition recognition : updatedRecognitions) {
+
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldMineralX = (int) recognition.getLeft();
+                        } else if (silverMineral1X == -1) {
+                            silverMineral1X = (int) recognition.getLeft();
+                        } else {
+                            silverMineral2X = (int) recognition.getLeft();
+                        }
+
+                    }
+
+                    if (verbose) {
+
+                        debug = updatedRecognitions;
+
+                    } else {
+
+                        debug = null;
+
+                    }
+
+
+                            /*if all are detected and are distinct, if gold is to the left of both silver 1 and 2, it is in position left
+                                                   if gold is to the right of both silver 1 and 2, it is in position right
+                                                   any other position is the center
+
+                             */
+
+                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                            result = "LEFT";
+                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                            result = "RIGHT";
+                        } else {
+                            result = "CENTER";
+                        }
+                    }
+
+                } else if (updatedRecognitions.size() > 3) {
+
+                    if(cycles < elimCycles) {
+
+                        cycles++;
+                        return cycles.toString();
+
+                    }
+                    Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
+                        @Override
+                        public int compare(Recognition a, Recognition b) {
+                            return a.getTop() < b.getTop() ? -1 : a.getTop() == b.getTop() ? 0 : 1;
+                        }
+                    });
+
+                    while(updatedRecognitions.size() != 3) {
+
+                        updatedRecognitions.remove(updatedRecognitions.size()-1);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        //in debug we encountered a nullpointerexception so these lines are probably important
+        if (result != null) {
+            return result;
+        } else {
+            return "UNKNOWN";
+        }
+
+
+    }
+
 
     int getNumberRecognitions() {
 
@@ -166,7 +272,7 @@ public class VuforiaTracking {
 
     List<Recognition> getDebug() {
 
-        if(verbose && debug != null) {
+        if (debug != null) {
 
             return debug;
 
@@ -175,6 +281,7 @@ public class VuforiaTracking {
             return null;
 
         }
+
     }
 
 
