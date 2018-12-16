@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-@Autonomous(name = "Autonomous 2 Test", group = "SCARY")
+@Autonomous(name = "Autonomous Test", group = "SCARY")
 public class Autonomous2Enhanced extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
@@ -19,6 +18,8 @@ public class Autonomous2Enhanced extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
+        robot.init(hardwareMap,this);
 
         robot.gyro.calibrate();
         // make sure the gyro is calibrated before continuing
@@ -58,13 +59,14 @@ public class Autonomous2Enhanced extends LinearOpMode {
 
                     POSITION_GOLD = "UNKNOWN"; //combat NullPointerException
 
-                    while (POSITION_GOLD.equals("UNKNOWN")) {
+                    while (!(POSITION_GOLD.equals("RIGHT") || POSITION_GOLD.equals("RIGHT") || POSITION_GOLD.equals("CENTER"))) {
 
-                        pos = tracking.getPositionbyElimination(100);
-
+                        pos = tracking.getPositionbyElimination(0);
+                        telemetry.addLine();
+                        telemetry.addData("Thread result", pos);
+                        telemetry.update();
                         if (!pos.equals("UNKNOWN")) {
                             POSITION_GOLD = pos;
-
                         }
                     }
                 }
@@ -82,6 +84,7 @@ public class Autonomous2Enhanced extends LinearOpMode {
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
     }
+
 
 
     //this method is adapted from the pushbot example class for encoder driving

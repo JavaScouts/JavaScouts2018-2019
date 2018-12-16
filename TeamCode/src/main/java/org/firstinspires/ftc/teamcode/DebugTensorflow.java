@@ -15,7 +15,7 @@ public class DebugTensorflow extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
     VuforiaTracking tracking = new VuforiaTracking();
-    String pos, finalpos, elimpos = "UNKNOWN";
+    String pos1, pos2, finalpos, elimpos = "UNKNOWN";
     int cycles = 10;
 
     @Override
@@ -33,9 +33,9 @@ public class DebugTensorflow extends LinearOpMode {
                 finalpos = "UNKNOWN";
                 if (opModeIsActive() && tracking.tfod != null) {
                     while (finalpos.equals("UNKNOWN")) {
-                        pos = tracking.getPosition();
-                        if (!pos.equals("UNKNOWN")) {
-                            finalpos = pos;
+                        pos1 = tracking.getPosition();
+                        if (!pos1.equals("UNKNOWN")) {
+                            finalpos = pos1;
                         }
                     }
                 }
@@ -65,16 +65,24 @@ public class DebugTensorflow extends LinearOpMode {
                 telemetry.update();
             }
 
-            if(gamepad2.left_bumper && !finalpos.equals("UNKNOWN")) {
+            if(gamepad2.left_bumper && !elimpos.equals("UNKNOWN")) {
                 elimpos = "UNKNOWN";
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         if (opModeIsActive() && tracking.tfod != null) {
-                            while (elimpos.equals("UNKNOWN")) {
-                                pos = tracking.getPositionbyElimination(cycles);
-                                if (!pos.equals("UNKNOWN")) {
-                                    elimpos = pos;
+
+                            elimpos = "UNKNOWN"; //combat NullPointerException
+
+                            while (!(elimpos.equals("RIGHT") || elimpos.equals("RIGHT") || elimpos.equals("CENTER"))) {
+
+                                pos2 = tracking.getPositionbyElimination(0);
+                                telemetry.addLine();
+                                telemetry.addData("Thread result", elimpos);
+                                telemetry.update();
+                                if (!pos2.equals("UNKNOWN")) {
+                                    elimpos = pos2;
                                 }
                             }
                         }
@@ -84,17 +92,39 @@ public class DebugTensorflow extends LinearOpMode {
                 telemetry.update();
             }
 
+            if(gamepad2.a && !finalpos.equals("UNKNOWN")) {
+                finalpos = "UNKNOWN";
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (opModeIsActive() && tracking.tfod != null) {
+                            while (finalpos.equals("UNKNOWN")) {
+                                pos1 = tracking.getPosition();
+                                if (!pos1.equals("UNKNOWN")) {
+                                    finalpos = pos1;
+                                }
+                            }
+                        }
+                    }
+                }).start();
+                telemetry.addLine("Thread created with regular strategy.");
+                telemetry.update();
+            }
+
             if(tracking.getVerbose()) {
 
+                tracking.getPosition();
                 List<Recognition> recognitions = tracking.getDebug();
                 for(int i=0; i < recognitions.size(); i++) {
 
-                    telemetry.addData("Conf: "+i,
+                    telemetry.addData("Data: "+i,
                             ""+ recognitions.get(i).getConfidence()+
                             ", "+recognitions.get(i).getLabel()+
                             ", "+recognitions.get(i).getLeft() +
                             ", "+recognitions.get(i).getTop());
+
                 }
+                telemetry.addData("ANGLE TO PROMINENT GOLD MINERAL",tracking.getAngleToGold(recognitions));
             }
 
             telemetry.update();

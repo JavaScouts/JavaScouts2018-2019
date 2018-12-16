@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -177,7 +178,7 @@ public class VuforiaTracking {
 
                 numDetected = updatedRecognitions.size();
 
-                if (updatedRecognitions.size() == 3) {
+                if (numDetected == 3) {
 
                     //-1 means not yet detected
 
@@ -208,14 +209,11 @@ public class VuforiaTracking {
                         debug = null;
 
                     }
-
-
                             /*if all are detected and are distinct, if gold is to the left of both silver 1 and 2, it is in position left
                                                    if gold is to the right of both silver 1 and 2, it is in position right
                                                    any other position is the center
 
                              */
-
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             result = "LEFT";
@@ -226,25 +224,66 @@ public class VuforiaTracking {
                         }
                     }
 
-                } else if (updatedRecognitions.size() > 3) {
+                } else if (numDetected > 3) {
 
-                    if(cycles < elimCycles) {
+                    if (cycles < elimCycles) {
 
                         cycles++;
-                        return cycles.toString();
+                        return cycles.toString() + " CYCLE COMPLETED with greater than 3 minerals seen. ";
 
                     }
+
                     Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
                         @Override
                         public int compare(Recognition a, Recognition b) {
-                            return a.getTop() < b.getTop() ? -1 : a.getTop() == b.getTop() ? 0 : 1;
+                            return Math.round(a.getTop() - b.getTop());
                         }
                     });
 
-                    while(updatedRecognitions.size() != 3) {
+                    while (updatedRecognitions.size() != 3) {
 
-                        updatedRecognitions.remove(updatedRecognitions.size()-1);
+                        updatedRecognitions.remove(updatedRecognitions.size() - 1);
 
+                    }
+
+                } else if (numDetected < 3) {
+
+                    if (cycles < elimCycles) {
+
+                        cycles++;
+                        return cycles.toString() + " CYCLE COMPLETED with less than 3 minerals seen. ";
+
+                    }
+
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+
+                    //loop through all the found objects, and label each with their respective x values(there should be three distinct)
+
+                    for (Recognition recognition : updatedRecognitions) {
+
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldMineralX = (int) recognition.getLeft();
+                        } else if (silverMineral1X == -1) {
+                            silverMineral1X = (int) recognition.getLeft();
+                        }
+
+                    }
+
+                    if (goldMineralX < silverMineral1X) {
+                        long r = Math.round(Math.random());
+                        if (r < 0.5) {
+                            return "LEFT";
+                        } else {
+                            return "CENTER";
+                        }
+                    } else {
+                        long r = Math.round(Math.random());
+                        if (r < 0.5) {
+                            return "CENTER";
+                        } else {
+                            return "RIGHT";
+                        }
                     }
 
                 }
@@ -281,6 +320,39 @@ public class VuforiaTracking {
             return null;
 
         }
+
+    }
+
+    double getAngleToGold(List<Recognition> recognitions) {
+
+        double result = 0;
+
+        for (Recognition recognition : recognitions) {
+
+            if (recognition.getLabel().equals(LABEL_SILVER_MINERAL)) {
+
+                recognitions.remove(recognition);
+
+            }
+
+            Collections.sort(recognitions, new Comparator<Recognition>() {
+                @Override
+                public int compare(Recognition a, Recognition b) {
+                    return Math.round(a.getTop() - b.getTop());
+                }
+            });
+
+            while (recognitions.size() != 1) {
+
+                recognitions.remove(recognitions.size() - 1);
+
+            }
+
+            result = recognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES);
+
+        }
+
+        return result;
 
     }
 

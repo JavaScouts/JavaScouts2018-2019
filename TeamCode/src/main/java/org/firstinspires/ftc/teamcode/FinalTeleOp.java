@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class FinalTeleOp extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
+    Servo marker;
 
     //VuforiaTracking tracking = new VuforiaTracking();
 
@@ -29,6 +30,7 @@ public class FinalTeleOp extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap, this);
+        marker = hardwareMap.get(Servo.class, "m");
 
         //not sure what this mess does but i don't trust myself to fix it
         robot.cup.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -53,6 +55,8 @@ public class FinalTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            moved = false;
+
             robot.manualDrive();
             robot.moveRobot();
 
@@ -64,7 +68,16 @@ public class FinalTeleOp extends LinearOpMode {
             } else if (gamepad2.y){
                 robot.ball.setPosition(0.9);
             }
+
+
 */
+
+            if(gamepad2.left_bumper) {
+                marker.setPosition(1.0);
+            }
+            if(gamepad2.right_bumper) {
+                marker.setPosition(0.3);
+            }
 
             if(gamepad2.a) {
                 pos = 0.37;
