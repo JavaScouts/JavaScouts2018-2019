@@ -10,6 +10,9 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
+
+
+
 @Autonomous(name = "A4: Starts crater, runs full auto")
 public class Autonomous4 extends LinearOpMode {
 
@@ -128,7 +131,7 @@ public class Autonomous4 extends LinearOpMode {
     public void encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
                              double timeoutS) {
-
+        
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 
