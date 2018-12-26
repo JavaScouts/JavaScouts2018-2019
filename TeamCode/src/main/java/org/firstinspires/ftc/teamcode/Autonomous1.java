@@ -10,7 +10,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-@Autonomous(name = "Final Autonomous 1")
+@Autonomous(name = "A1: Starts depot, ends friendly")
 public class Autonomous1 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
@@ -18,7 +18,6 @@ public class Autonomous1 extends LinearOpMode {
     VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
     String POSITION_GOLD, pos = "UNKNOWN";
-
     @Override
     public void runOpMode() {
 
@@ -64,7 +63,7 @@ public class Autonomous1 extends LinearOpMode {
 
                     while (POSITION_GOLD.equals("UNKNOWN")) {
 
-                        pos = tracking.getPosition();
+                        pos = tracking.getPositionByTwo();
 
                         if (!pos.equals("UNKNOWN")) {
                             POSITION_GOLD = pos;

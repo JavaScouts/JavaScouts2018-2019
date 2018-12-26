@@ -165,7 +165,9 @@ public class VuforiaTracking {
 
     }
 
-    String getPositionbyElimination(Integer elimCycles) {
+
+    //return a string with a position in it, if none is found return unknown
+    String getPositionByTwo() {
 
         String result = "UNKNOWN";
 
@@ -178,118 +180,12 @@ public class VuforiaTracking {
 
                 numDetected = updatedRecognitions.size();
 
-                if (numDetected == 3) {
+                if (updatedRecognitions.size() == 2) {
 
-                    //-1 means not yet detected
-
-                    int goldMineralX = -1;
-                    int silverMineral1X = -1;
-                    int silverMineral2X = -1;
-
-                    //loop through all the found objects, and label each with their respective x values(there should be three distinct)
-
-                    for (Recognition recognition : updatedRecognitions) {
-
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
-                        } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
-                        } else {
-                            silverMineral2X = (int) recognition.getLeft();
-                        }
-
-                    }
-
-                    if (verbose) {
-
-                        debug = updatedRecognitions;
-
-                    } else {
-
-                        debug = null;
-
-                    }
-                            /*if all are detected and are distinct, if gold is to the left of both silver 1 and 2, it is in position left
-                                                   if gold is to the right of both silver 1 and 2, it is in position right
-                                                   any other position is the center
-
-                             */
-                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            result = "LEFT";
-                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            result = "RIGHT";
-                        } else {
-                            result = "CENTER";
-                        }
-                    }
-
-                } else if (numDetected > 3) {
-
-                    if (cycles < elimCycles) {
-
-                        cycles++;
-                        return cycles.toString() + " CYCLE COMPLETED with greater than 3 minerals seen. ";
-
-                    }
-
-                    Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
-                        @Override
-                        public int compare(Recognition a, Recognition b) {
-                            return Math.round(a.getTop() - b.getTop());
-                        }
-                    });
-
-                    while (updatedRecognitions.size() != 3) {
-
-                        updatedRecognitions.remove(updatedRecognitions.size() - 1);
-
-                    }
-
-                } else if (numDetected < 3) {
-
-                    if (cycles < elimCycles) {
-
-                        cycles++;
-                        return cycles.toString() + " CYCLE COMPLETED with less than 3 minerals seen. ";
-
-                    }
-
-                    int goldMineralX = -1;
-                    int silverMineral1X = -1;
-
-                    //loop through all the found objects, and label each with their respective x values(there should be three distinct)
-
-                    for (Recognition recognition : updatedRecognitions) {
-
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
-                        } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
-                        }
-
-                    }
-
-                    if (goldMineralX < silverMineral1X) {
-                        long r = Math.round(Math.random());
-                        if (r < 0.5) {
-                            return "LEFT";
-                        } else {
-                            return "CENTER";
-                        }
-                    } else {
-                        long r = Math.round(Math.random());
-                        if (r < 0.5) {
-                            return "CENTER";
-                        } else {
-                            return "RIGHT";
-                        }
-                    }
+                    result = compareRecognitions(updatedRecognitions);
 
                 }
-
             }
-
         }
 
         //in debug we encountered a nullpointerexception so these lines are probably important
@@ -298,28 +194,118 @@ public class VuforiaTracking {
         } else {
             return "UNKNOWN";
         }
-
-
     }
 
+    String getPositionByElimination(int n) {
+
+        String result = "UNKNOWN";
+
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+            if(cycles < n) {
+
+                cycles++;
+                return cycles.toString();
+
+            }
+
+
+            if (updatedRecognitions != null) {
+
+                numDetected = updatedRecognitions.size();
+
+                if (numDetected == 2) {
+
+                    result = compareRecognitions(updatedRecognitions);
+
+                } else if(numDetected > 2) {
+
+                    Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
+                        @Override
+                        public int compare(Recognition a, Recognition b) {
+                            return (int) a.getBottom() - (int) b.getBottom();
+                        }
+                    });
+
+                    while(updatedRecognitions.size() > 2) {
+
+                        updatedRecognitions.remove(updatedRecognitions.size() - 1);
+
+                    }
+
+                    result = compareRecognitions(updatedRecognitions);
+
+                }
+            }
+        }
+
+        //in debug we encountered a nullpointerexception so these lines are probably important
+        if (result != null) {
+            return result;
+        } else {
+            return "UNKNOWN";
+        }
+    }
+
+    String compareRecognitions(List<Recognition> r) {
+
+        String result = "UNKNOWN";
+
+        Classification obj1 = new Classification(-1, "UNKNOWN");
+        Classification obj2 = new Classification(-1, "UNKNOWN");
+
+        // first sort values by x coordinate
+        // loop through all the found objects, and label each with their respective x values(there should be two distinct)
+
+        Collections.sort(r, new Comparator<Recognition>() {
+            @Override
+            public int compare(Recognition a, Recognition b) {
+                return (int) a.getLeft() - (int) b.getLeft();
+            }
+        });
+
+        for (Recognition recognition : r) {
+
+            if(obj1.getX() == -1) {
+                obj1.setX( (int) recognition.getLeft());
+                obj1.setLABEL(recognition.getLabel());
+            } else {
+                obj2.setX( (int) recognition.getLeft());
+                obj2.setLABEL(recognition.getLabel());
+            }
+
+        }
+
+                            /*
+                                if both objects exist:
+                                    if the leftist one is silver and so is the center, then the RIGHT is GOLD
+                                    if the leftist one is silver and the center is gold, then the CENTER is GOLD
+                                    if the leftist one is gold, then the LEFT is GOLD
+                            */
+
+        if (obj1.getX() != -1 && obj2.getX() != -1) {
+
+            if(obj1.getLABEL().equals(LABEL_SILVER_MINERAL) && obj2.getLABEL().equals(LABEL_SILVER_MINERAL)) {
+                result = "RIGHT";
+            } else if(obj2.getLABEL().equals(LABEL_GOLD_MINERAL)) {
+                result = "CENTER";
+            } else if(obj1.getLABEL().equals(LABEL_GOLD_MINERAL)) {
+                result = "LEFT";
+            } else {
+                result = "UNKNOWN";
+            }
+        }
+
+        return result;
+
+    }
 
     int getNumberRecognitions() {
 
         return numDetected;
-
-    }
-
-    List<Recognition> getDebug() {
-
-        if (debug != null) {
-
-            return debug;
-
-        } else {
-
-            return null;
-
-        }
 
     }
 
@@ -356,13 +342,33 @@ public class VuforiaTracking {
 
     }
 
+    class Classification {
 
-    public Boolean getVerbose() {
-        return verbose;
-    }
+        int x;
+        String LABEL;
 
-    public void setVerbose(Boolean verbose) {
-        this.verbose = verbose;
+        Classification(int posX, String CLASS) {
+
+            x = posX;
+            LABEL = CLASS;
+
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public void setLABEL(String LABEL) {
+            this.LABEL = LABEL;
+        }
+
+        public String getLABEL() {
+            return LABEL;
+        }
     }
 
 }

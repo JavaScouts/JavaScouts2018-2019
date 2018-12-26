@@ -9,7 +9,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
 
-@Autonomous(name = "Final Autonomous 2")
+@Autonomous(name = "A2: Starts crater, ends friendly")
 public class Autonomous2 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
