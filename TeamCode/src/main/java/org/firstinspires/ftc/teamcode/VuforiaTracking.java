@@ -196,7 +196,7 @@ public class VuforiaTracking {
         }
     }
 
-    String getPositionByElimination(int n) {
+    String getPositionByElimination() {
 
         String result = "UNKNOWN";
 
@@ -204,14 +204,6 @@ public class VuforiaTracking {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
-            if(cycles < n) {
-
-                cycles++;
-                return cycles.toString();
-
-            }
-
 
             if (updatedRecognitions != null) {
 
@@ -225,14 +217,14 @@ public class VuforiaTracking {
 
                     Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
                         @Override
-                        public int compare(Recognition a, Recognition b) {
-                            return (int) a.getBottom() - (int) b.getBottom();
+                        public int compare(Recognition r1, Recognition r2) {
+                            return Integer.valueOf( (int) r1.getTop()).compareTo((int) r2.getTop());
                         }
                     });
 
                     while(updatedRecognitions.size() > 2) {
 
-                        updatedRecognitions.remove(updatedRecognitions.size() - 1);
+                        updatedRecognitions.remove(0);
 
                     }
 
@@ -256,6 +248,7 @@ public class VuforiaTracking {
 
         Classification obj1 = new Classification(-1, "UNKNOWN");
         Classification obj2 = new Classification(-1, "UNKNOWN");
+
 
         // first sort values by x coordinate
         // loop through all the found objects, and label each with their respective x values(there should be two distinct)

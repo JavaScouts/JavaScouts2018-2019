@@ -38,7 +38,7 @@ public class DebugTensorflow extends LinearOpMode {
             //display results from main thread and separate thread.
             telemetry.addData("POS>", tracking.getPosition());
             telemetry.addData("NUM>", tracking.getNumberRecognitions());
-            telemetry.addData("THREAD (3)>", finalpos);
+            telemetry.addData("THREAD elim>", finalpos);
             telemetry.addData("THREAD (2)>", finalpos2);
 
             double right = -gamepad2.right_stick_y;
@@ -51,7 +51,7 @@ public class DebugTensorflow extends LinearOpMode {
                     public void run() {
                         if (opModeIsActive() && tracking.tfod != null) {
                             while (finalpos.equals("UNKNOWN")) {
-                                pos1 = tracking.getPosition();
+                                pos1 = tracking.getPositionByElimination();
                                 if (!pos1.equals("UNKNOWN")) {
                                     finalpos = pos1;
                                 }
@@ -59,7 +59,7 @@ public class DebugTensorflow extends LinearOpMode {
                         }
                     }
                 }).start();
-                telemetry.addLine("Thread created with (3) strategy.");
+                telemetry.addLine("Thread created with elim strategy.");
             }
 
             if(gamepad2.right_bumper && !finalpos2.equals("UNKNOWN")) {

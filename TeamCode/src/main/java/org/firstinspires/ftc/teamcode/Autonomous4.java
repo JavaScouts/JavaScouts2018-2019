@@ -4,22 +4,25 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-@Autonomous(name = "Autonomous Test", group = "SCARY")
-public class Autonomous2Enhanced extends LinearOpMode {
+@Autonomous(name = "A4: Starts crater, runs full auto")
+public class Autonomous4 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
+
     VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
-    String POSITION_GOLD,pos = "UNKNOWN";
+    String POSITION_GOLD, pos;
 
     @Override
     public void runOpMode() {
 
-        robot.init(hardwareMap,this);
+        robot.init(hardwareMap, this);
 
         robot.gyro.calibrate();
         // make sure the gyro is calibrated before continuing
@@ -51,7 +54,6 @@ public class Autonomous2Enhanced extends LinearOpMode {
             the thread will only run until a valid position is found. this helps with an issue with detecting more than 3 objects or less than 3.
             however, the main thread will only check to see if the thread has returned a result after each move.
          */
-/*
 
         new Thread(new Runnable() {
             @Override
@@ -60,9 +62,9 @@ public class Autonomous2Enhanced extends LinearOpMode {
 
                     POSITION_GOLD = "UNKNOWN"; //combat NullPointerException
 
-                    while (!(POSITION_GOLD.equals("RIGHT") || POSITION_GOLD.equals("LEFT") || POSITION_GOLD.equals("CENTER"))) {
+                    while (POSITION_GOLD.equals("UNKNOWN")) {
 
-                        pos = tracking.getPositionByElimination(10);
+                        pos = tracking.getPositionByElimination();
                         if (!pos.equals("UNKNOWN")) {
                             POSITION_GOLD = pos;
                             telemetry.addData("Thread result", POSITION_GOLD);
@@ -73,23 +75,54 @@ public class Autonomous2Enhanced extends LinearOpMode {
                 }
             }
         }).start();
-*/
+                tracking.activateTfod();
 
-        tracking.activateTfod();
-
-        POSITION_GOLD = tracking.getPositionByElimination(0);
         telemetry.addData("Position before move", POSITION_GOLD);
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9450, 10.0);
+        encoderDrive(0.75, 0, 0, 0, 0, 0, 9700, 7.0);
 
-        POSITION_GOLD = tracking.getPositionByElimination(0);
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
+
+        //this program is much simpler, because it does not attempt to deliver the marker, and just drives into the parking zone.
+        switch (POSITION_GOLD) {
+            case "LEFT":
+
+                encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 3.0);
+                encoderDrive(0.75, -500, -3500, -3500, -3500, 0, 0, 3.0);
+                encoderDrive(0.75,2500,2500,2500,2500,0,0,3.0);
+                robot.gyroTurn(0.75, 45);
+                while (robot.range.getDistance(DistanceUnit.INCH) > 6.0) {
+                    robot.setPower(-0.5);
+                }
+
+
+                break;
+            case "CENTER":
+
+                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+                encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -9);
+                encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+
+                break;
+            default:  //this is exception handling. it includes the "RIGHT" case and all other situations. RIGHT is the most reliable.
+
+                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
+                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -35);
+                encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+
+                break;
+        }
+        robot.gyroTurn(135,0.75);
+        encoderDrive(0.75,7500,7500,7500,7500,0,0,4.0);
+
+        telemetry.addLine("autonomous completed in "+Math.round(runtime.seconds())+" seconds.");
+        telemetry.update();
     }
-
-
 
     //this method is adapted from the pushbot example class for encoder driving
     public void encoderDrive(double speed,
@@ -146,4 +179,5 @@ public class Autonomous2Enhanced extends LinearOpMode {
         }
     }
 }
+
 
