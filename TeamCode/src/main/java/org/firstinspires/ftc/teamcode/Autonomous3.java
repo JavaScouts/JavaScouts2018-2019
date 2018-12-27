@@ -80,7 +80,7 @@ public class Autonomous3 extends LinearOpMode {
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 10000, 7.0);
+        encoderDrive(0.75, 0, 0, 0, 0, 0, 10000, 5.0);
 
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
