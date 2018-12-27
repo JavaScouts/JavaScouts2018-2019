@@ -61,13 +61,13 @@ public class GyroTest extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 10.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        robot.encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 10.0, opModeIsActive(), runtime);  // S1: Forward 47 Inches with 5 Sec timeout
         POSITION_GOLD = tracking.getPosition();
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
         if (POSITION_GOLD.equals("LEFT")) {
-            encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
-            encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
+            robot.encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5,-43);
             while (robot.range.getDistance(DistanceUnit.INCH) > 6.0){
                 robot.setPower(-0.5);
@@ -75,36 +75,37 @@ public class GyroTest extends LinearOpMode {
             robot.setPower(0);
             sleep(600);
             robot.gyroTurn(0.5, -140);
-            encoderDrive(0.75, -350, -350, -350, -350, 0, 0, 2.0);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            robot.encoderDrive(0.75, -350, -350, -350, -350, 0, 0, 2.0, opModeIsActive(), runtime) ;
+            robot.encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5, -138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 5.0);
+            robot.encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 5.0, opModeIsActive(), runtime);
 
         } else if (POSITION_GOLD.equals("CENTER")) {
-            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-            encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+            robot.encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5, -9);
-            encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+            robot.encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5,-138);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            robot.encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5,-138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+            robot.encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0, opModeIsActive(), runtime);
 
         } else {
-            encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-            encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
-            encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
-            encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+            robot.encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5,-138);
-            encoderDrive(0.75, 2200, 2200, 2200, 2200, 0, 0, 3.0);
-            encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
+            robot.encoderDrive(0.75, 2200, 2200, 2200, 2200, 0, 0, 3.0, opModeIsActive(), runtime);
+            robot.encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0, opModeIsActive(), runtime);
             robot.gyroTurn(0.5,-138);
-            encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0);
+            robot.encoderDrive(10, -10000, -10000, -10000, -10000, 0, 0, 7.0, opModeIsActive(), runtime);
 
         }
     }
 
-    public void encoderDrive(double speed,
+    /**
+    public void robot.encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
                              double timeoutS) {
 
@@ -156,7 +157,7 @@ public class GyroTest extends LinearOpMode {
 
             sleep(100);   // optional pause after each move
         }
-    }
+    }**/
 
 }
 

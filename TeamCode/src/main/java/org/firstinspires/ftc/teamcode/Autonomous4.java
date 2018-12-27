@@ -151,7 +151,12 @@ public class Autonomous4 extends LinearOpMode {
     public void encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
                              double timeoutS) {
-        
+
+        // Ensure that we're not changing the wrong thing
+        if (speed > 1 || speed < 0) {
+            throw new RuntimeException("InvalidSpeed");
+        }
+
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 

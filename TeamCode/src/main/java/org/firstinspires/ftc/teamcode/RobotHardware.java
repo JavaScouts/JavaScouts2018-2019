@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 
 public class RobotHardware {
 
@@ -221,4 +225,64 @@ public class RobotHardware {
         return Range.clip(error * PCoeff, -1, 1);
     }
 
+    //this method is adapted from the pushbot example class for encoder driving
+    public void encoderDrive(double speed,
+                             double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
+                             double timeoutS,
+                             boolean opModeActive, ElapsedTime rt) {
+
+        // Ensure that we're not changing the wrong thing
+        if (speed > 1 || speed < 0) {
+            throw new RuntimeException("InvalidSpeed");
+        }
+
+        // Ensure that the opmode is still active
+        if (opModeActive) {
+
+            // Determine new target position, and pass to motor controller
+            leftDrive.setTargetPosition((int) leftCounts + leftDrive.getCurrentPosition());
+            rightDrive.setTargetPosition((int) rightCounts + rightDrive.getCurrentPosition());
+            backLDrive.setTargetPosition((int) backleftCounts + backLDrive.getCurrentPosition());
+            backRDrive.setTargetPosition((int) backrightCounts + backRDrive.getCurrentPosition());
+            cup.setTargetPosition((int) CupCounts + cup.getCurrentPosition());
+            screw.setTargetPosition((int) ScrewCounts + screw.getCurrentPosition());
+
+            // Turn On RUN_TO_POSITION
+            setMode(RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            rt.reset();
+            leftDrive.setPower(Math.abs(speed));
+            rightDrive.setPower(Math.abs(speed));
+            backLDrive.setPower(Math.abs(speed));
+            backRDrive.setPower(Math.abs(speed));
+            cup.setPower(Math.abs(speed));
+            screw.setPower(Math.abs(speed));
+
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continuess
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeActive &&
+                    (rt.seconds() < timeoutS) &&
+                    (leftDrive.isBusy() || rightDrive.isBusy() || backLDrive.isBusy() || backRDrive.isBusy() || cup.isBusy() || screw.isBusy())) {
+            }
+
+            setMode(RUN_USING_ENCODER);
+
+            // Stop all motion;
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+            backLDrive.setPower(0);
+            backRDrive.setPower(0);
+            cup.setPower(0);
+            screw.setPower(0);
+
+
+            //sleep(100);   // optional pause after each move
+        }
+    }
 }
