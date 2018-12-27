@@ -81,14 +81,14 @@ public class ZAutonomous2Enhanced extends LinearOpMode {
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9450, 10.0);
+        robot.encoderDrive(0.75, 0, 0, 0, 0, 0, 9450, 10.0, opModeIsActive(), runtime);
 
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
     }
 
 
-
+    /**
     //this method is adapted from the pushbot example class for encoder driving
     public void encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
@@ -142,6 +142,6 @@ public class ZAutonomous2Enhanced extends LinearOpMode {
 
             sleep(100);   // optional pause after each move
         }
-    }
+    }**/
 }
 

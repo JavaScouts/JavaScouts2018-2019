@@ -82,7 +82,7 @@ public class Autonomous2 extends LinearOpMode {
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9700, 5.0);
+        robot.encoderDrive(0.75, 0, 0, 0, 0, 0, 9700, 5.0, opModeIsActive(), runtime);
 
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
@@ -91,28 +91,28 @@ public class Autonomous2 extends LinearOpMode {
         switch (POSITION_GOLD) {
             case "LEFT":
 
-                encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0);
-                encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0);
+                robot.encoderDrive(0.5, -1000, 400, -1000, 400, 0, 0, 7.0, opModeIsActive(), runtime);
+                robot.encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 5.0, opModeIsActive(), runtime);
 
                 break;
             case "CENTER":
 
-                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
+                robot.encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0, opModeIsActive(), runtime);
+                robot.encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0, opModeIsActive(), runtime);
                 robot.gyroTurn(0.5, -9);
-                encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+                robot.encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0, opModeIsActive(), runtime);
 
                 break;
             default:  //this is exception handling. it includes the "RIGHT" case and all other situations. RIGHT is the most reliable.
 
-                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
+                robot.encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0, opModeIsActive(), runtime);
+                robot.encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0, opModeIsActive(), runtime);
                 robot.gyroTurn(0.5, -35);
-                encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
+                robot.encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0, opModeIsActive(), runtime);
 
                 break;
         }
-        encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
+        robot.encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0, opModeIsActive(), runtime);
         robot.ball.setPosition(1.0);
         robot.gyroTurn(0.5, 0);
         robot.ball.setPosition(0.85);
@@ -120,8 +120,9 @@ public class Autonomous2 extends LinearOpMode {
         telemetry.update();
     }
 
+    /**
     //this method is adapted from the pushbot example class for encoder driving
-    public void encoderDrive(double speed,
+    public void robot.encoderDrive(double speed,
                              double leftCounts, double rightCounts, double backleftCounts, double backrightCounts, double CupCounts, double ScrewCounts,
                              double timeoutS) {
 
@@ -173,7 +174,7 @@ public class Autonomous2 extends LinearOpMode {
 
             sleep(100);   // optional pause after each move
         }
-    }
+    }**/
 }
 
 
