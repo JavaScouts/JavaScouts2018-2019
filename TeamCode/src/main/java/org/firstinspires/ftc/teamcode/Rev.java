@@ -41,10 +41,13 @@ public class Rev extends LinearOpMode {
             }
 */
 
-            float power = gamepad1.right_stick_y;
+            float power1 = gamepad1.left_stick_y;
 
-            Rev1.setPower(power);
-            Rev2.setPower(power);
+            Rev1.setPower(power1);
+
+            float power2 = gamepad1.right_stick_y;
+
+            Rev2.setPower(power2);
 
         }
 
