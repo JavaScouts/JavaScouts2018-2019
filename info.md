@@ -160,7 +160,170 @@ This code is one of the most vital in the entire program. After it receives it's
   ```
   - This will get us down to a hopefully correct 3 object system.
   - An issue: we usually can get down to a 3 object system after a certain amount of time. So, we make var called minimumCycles that has to be reached before the actual exceptions can be used.
-  
+
+# 2-Object strategy and Elimination strategy
+
+### 2-Object strategy ( + Classifications)
+
+At the Rochester and Saquoit qualifiers, we ran into the problem of having too narrow of a field of vision to reliably spot all three minerals. So, we came up with a new strategy: specifically point the webcam at the LEFT and CENTER minerals, which will still allow us to determine the position of the gold mineral. This system is implemented as follows:
+
+VuforiaTracking.java
+```java
+String compareRecognitions(List<Recognition> r) {
+
+    String result = "UNKNOWN";
+    
+    Classification obj1 = new Classification(-1, "UNKNOWN");
+    Classification obj2 = new Classification(-1, "UNKNOWN");
+    
+    // first sort values by x coordinate
+    // loop through all the found objects, and label each with their respective x values
+    // (there should be two distinct)
+
+    Collections.sort(r, new Comparator<Recognition>() {
+        @Override
+        public int compare(Recognition a, Recognition b) {
+            return (int) a.getLeft() - (int) b.getLeft();
+        }
+    });
+
+    for (Recognition recognition : r) {
+
+        if(obj1.getX() == -1) {
+            obj1.setX( (int) recognition.getLeft());
+            obj1.setLABEL(recognition.getLabel());
+        } else {
+            obj2.setX( (int) recognition.getLeft());
+            obj2.setLABEL(recognition.getLabel());
+        }
+
+    }
+
+                        /*
+                            if both objects exist:
+                                if the leftist one is silver and so is the center, 
+                                    then the RIGHT is GOLD
+                                if the center is gold, 
+                                    then the CENTER is GOLD
+                                if the leftist one is gold, 
+                                    then the LEFT is GOLD
+                        */
+
+    if (obj1.getX() != -1 && obj2.getX() != -1) {
+
+        if(obj1.getLABEL().equals(LABEL_SILVER_MINERAL) && obj2.getLABEL().equals(LABEL_SILVER_MINERAL)) {
+            result = "RIGHT";
+        } else if(obj2.getLABEL().equals(LABEL_GOLD_MINERAL)) {
+            result = "CENTER";
+        } else if(obj1.getLABEL().equals(LABEL_GOLD_MINERAL)) {
+            result = "LEFT";
+        } else {
+            result = "UNKNOWN";
+        }
+    }
+
+    return result;
+
+}
+```
+
+In this method, we implement object-oriented programming by creating a new object, the Classification. This object is a simplified version of the Recognition object which only has a label and a left-position.
+
+VuforiaTracking.java
+```java
+class Classification {
+
+    int x;
+    String LABEL;
+
+    Classification(int posX, String CLASS) {
+
+        x = posX;
+        LABEL = CLASS;
+
+    }
+
+    public int getX() {return x;}
+
+    public void setX(int x) {this.x = x;}
+
+    public void setLABEL(String LABEL) {this.LABEL = LABEL;}
+
+    public String getLABEL() {return LABEL;}
+    
+}
+```
+
+This allows us to compare Recognition/Classifications quite easily, and makes the code quite readable.
+
+### Elimination strategy
+
+When our robot faces the crater, we have the problem of detecting far too many minerals. Some runs we only detect two, but on others we detect 7 or 8. This poses a great challenge to our existing 2-Object strategy.
+
+What we ended up creating was a relatively simple, yet effetive algorithm. Instead of our previous reliance on physically blocking the top half of the webcam, we now have a system which works at extremely close to 100% accuracy. The "elimination" method is implemented as shown below.
+
+```java
+String getPositionByElimination() {
+
+    String result = "UNKNOWN";
+
+    if (tfod != null) {
+        // getUpdatedRecognitions() will return null if no new information is available since
+        // the last time that call was made.
+        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+        if (updatedRecognitions != null) {
+
+            numDetected = updatedRecognitions.size();
+            
+            //there are two minerals, so run as normal
+            
+            if (numDetected == 2) {
+
+                result = compareRecognitions(updatedRecognitions);
+
+            //there are more than two minerals, so eliminate
+            } else if(numDetected > 2) {
+            
+                //sort by TOP distance
+                Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
+                    @Override
+                    public int compare(Recognition r1, Recognition r2) {
+                        return Integer.valueOf( (int) r1.getTop()).compareTo((int) r2.getTop());
+                    }
+                });
+
+                //remove the minerals that are at the TOP until there are just 2
+                while(updatedRecognitions.size() > 2) {
+
+                    updatedRecognitions.remove(0);
+
+                }
+                
+                //run the usual compare algorithm
+                result = compareRecognitions(updatedRecognitions);
+
+            }
+        }
+    }
+
+    //in debug we encountered a nullpointerexception so these lines are probably important
+    if (result != null) {
+        return result;
+    } else {
+        return "UNKNOWN";
+    }
+}
+```
+
+In this, we don't need to run the elimination if there are already only two minerals. However, if there are more than two, we:
+1. Sort the list of recognitions by their TOP position
+2. Eliminate recognitions from the list by index 0 aka the minerals in the crater which the webcam has seen
+3. Now, we have a list of size 2, and we can run the compareRecognition algorithm to find the position of the real gold mineral.
+
+We can still use this algorithm with multi-threading.
+
+This algorithm is simple, yet effective! Come watch us sample in competition!
   
 # Information on mecanum drive algorithm
 
