@@ -161,11 +161,11 @@ This code is one of the most vital in the entire program. After it receives it's
   - This will get us down to a hopefully correct 3 object system.
   - An issue: we usually can get down to a 3 object system after a certain amount of time. So, we make var called minimumCycles that has to be reached before the actual exceptions can be used.
 
-# 2-Object strategy and Elimination strategy
+# 2-Mineral Strategy and Elimination Strategy
 
-### 2-Object strategy ( + Classifications)
+### 2-Mineral Strategy ( + Classifications)
 
-At the Rochester and Saquoit qualifiers, we ran into the problem of having too narrow of a field of vision to reliably spot all three minerals. So, we came up with a new strategy: specifically point the webcam at the LEFT and CENTER minerals, which will still allow us to determine the position of the gold mineral. This system is implemented as follows:
+At the Rochester and Saquoit qualifiers, we ran into the problem of having too narrow of a field of vision from our webcam to reliably spot all three minerals. We wanted to fix the webcam in a position in order to increase reliability. So, we came up with a new strategy while altering positions of the webcam: specifically point the webcam at the LEFT and CENTER minerals, which will still allow us to determine the position of the gold mineral through the algorithm below. This system is implemented as follows:
 
 VuforiaTracking.java
 ```java
@@ -177,7 +177,7 @@ String compareRecognitions(List<Recognition> r) {
     Classification obj2 = new Classification(-1, "UNKNOWN");
     
     // first sort values by x coordinate
-    // loop through all the found objects, and label each with their respective x values
+    // loop through all the found minerals, and label each with their respective x values
     // (there should be two distinct)
 
     Collections.sort(r, new Comparator<Recognition>() {
@@ -201,17 +201,18 @@ String compareRecognitions(List<Recognition> r) {
 
                         /*
                             if both objects exist:
-                                if the leftist one is silver and so is the center, 
+                                if the leftmost one is silver and so is the center, 
                                     then the RIGHT is GOLD
                                 if the center is gold, 
                                     then the CENTER is GOLD
-                                if the leftist one is gold, 
+                                if the leftmost one is gold, 
                                     then the LEFT is GOLD
                         */
 
     if (obj1.getX() != -1 && obj2.getX() != -1) {
 
-        if(obj1.getLABEL().equals(LABEL_SILVER_MINERAL) && obj2.getLABEL().equals(LABEL_SILVER_MINERAL)) {
+        if(obj1.getLABEL().equals(LABEL_SILVER_MINERAL) && 
+           obj2.getLABEL().equals(LABEL_SILVER_MINERAL)) {
             result = "RIGHT";
         } else if(obj2.getLABEL().equals(LABEL_GOLD_MINERAL)) {
             result = "CENTER";
@@ -254,13 +255,15 @@ class Classification {
 }
 ```
 
-This allows us to compare Recognition/Classifications quite easily, and makes the code quite readable.
+This allows us to compare minerals quite easily, and makes the code quite readable.
 
 ### Elimination strategy
 
-When our robot faces the crater, we have the problem of detecting far too many minerals. Some runs we only detect two, but on others we detect 7 or 8. This poses a great challenge to our existing 2-Object strategy.
+When our robot faces the crater, we have the problem of detecting too many minerals. Some runs we only detect two, but on others we detect seven or eight. This poses a great challenge to the above described 2-Mineral Strategy.
 
-What we ended up creating was a relatively simple, yet effetive algorithm. Instead of our previous reliance on physically blocking the top half of the webcam, we now have a system which works at extremely close to 100% accuracy. The "elimination" method is implemented as shown below.
+After the Saquoit qualifier, one of the ideas in the back of my head was to eliminate the crater minerals based on the TensorFlow confidence level. However, with some debugging, we realized there are some runs where the crater minerals are actually more confident than the sampling minerals. So, we switched to using the actual position of the minerals to eliminate. 
+
+What we ended up creating was a relatively simple, yet effective algorithm. Instead of our previous reliance on physically blocking the top half of the webcam, we now have a system which works at extremely close to 100% accuracy. The "elimination" method is implemented as shown below.
 
 ```java
 String getPositionByElimination() {
@@ -323,7 +326,7 @@ In this, we don't need to run the elimination if there are already only two mine
 
 We can still use this algorithm with multi-threading.
 
-This algorithm is simple, yet effective! Come watch us sample in competition!
+This algorithm is simple, yet effective! Come watch us sample in the competition!
   
 # Information on mecanum drive algorithm
 
