@@ -10,15 +10,15 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-@Autonomous(name = "A1: Depot to friendly")
-public class Autonomous1 extends LinearOpMode {
+@Autonomous(name = "A5: Depot to friendly, 2x Sample")
+public class Autonomous5 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
 
     VuforiaTracking tracking = new VuforiaTracking();
     private ElapsedTime runtime = new ElapsedTime();
     String POSITION_GOLD, pos = "UNKNOWN";
-
+    
     @Override
     public void runOpMode() {
 
@@ -102,8 +102,8 @@ public class Autonomous1 extends LinearOpMode {
                 robot.gyroTurn(0.5, -140);
                 encoderDrive(0.75, -30, -350, -350, -350, 0, 0, 2.0);
                 encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-                robot.gyroTurn(0.5, -132);
-                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
+                robot.gyroTurn(0.5, -141);
+                encoderDrive(10, -7200, -7200, -7200, -7200, 0, 0, 4.0);
                 encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
                 robot.ball.setPosition(1.0);
                 robot.gyroTurn(0.5, -132);
@@ -114,31 +114,36 @@ public class Autonomous1 extends LinearOpMode {
                 encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
                 encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
                 robot.gyroTurn(0.5, -9);
-                encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
+                encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 3.0);
                 robot.gyroTurn(0.5, -138);
                 encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
                 robot.gyroTurn(0.5, -132);
-                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
+                encoderDrive(10, -4200, -4200, -4200, -4200, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -177);
+                encoderDrive(10, -4500, -4500, -4500, -4500, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -87);
+                encoderDrive(10, -1500, -1500, -1500, -1500, 0, 0, 3.0);
                 encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
                 robot.ball.setPosition(1.0);
-                robot.gyroTurn(0.5, -132);
 
                 break;
             default:  //this is exception handling. it includes the "RIGHT" case and all other situations. RIGHT is the most reliable.
 
                 encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                encoderDrive(0.75, -600,
-                        -600, -600, -600, 0, 0, 3.0);
+                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
                 encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
                 encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
                 robot.gyroTurn(0.5, -138);
                 encoderDrive(0.75, 2200, 2200, 2200, 2200, 0, 0, 3.0);
                 encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
                 robot.gyroTurn(0.5, -132);
-                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
-                encoderDrive(0.75, 0, 0, 0, 0, -850, 0, 3.0);
+                encoderDrive(10, -3700, -3700, -3700, -3700, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -177);
+                encoderDrive(10, -6000, -6000, -6000, -6000, 0, 0, 3.0);
+                robot.gyroTurn(0.5, -87);
+                encoderDrive(10, -1500, -1500, -1500, -1500, 0, 0, 3.0);
+                encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
                 robot.ball.setPosition(1.0);
-                robot.gyroTurn(0.5, -132);
 
                 break;
         }

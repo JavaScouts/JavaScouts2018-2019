@@ -10,7 +10,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-@Autonomous(name = "A3: Starts depot, ends enemy")
+@Autonomous(name = "A3: Depot to enemy")
 public class Autonomous3 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
