@@ -10,10 +10,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_TO_POSITION;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 
-
-
-
-@Autonomous(name = "A4: Starts crater, runs full auto")
+@Autonomous(name = "A4: Crater to claim to friendly")
 public class Autonomous4 extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
