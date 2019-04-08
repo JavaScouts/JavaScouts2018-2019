@@ -450,8 +450,137 @@ double max = Math.max(Math.abs(left), Math.abs(right));
 Of course, we only need to normalize if some values are greater than one, so `if (max > 1.0) {...}` will streamline things.
 With that, the mecanum drive algorithm works completely, and you can see it in action on the field!
 
-## Questions? Contact Javascouts in the booth or at javascouts@gmail.com!
+# Information on certain Driver-Enhancements
+
+From the very beginning of our team's career, we have considered and attempted implementing driver control algorithms in order to make our driver's lives easier and more efficient. In this year's game, we have had a consistent issue with turning: when we try to turn slowly, we actually move quite "jerkily" and our long extension wibbles and wobbles back and forth. We have seen many other teams with what seemed to be a more smoother drive. So, we tried to implement it.
+
+### Gyro-assisted turning
+
+A first thought of mine to improve turning was to use the gyro sensor we already use for turning in autonomous. What I had in mind was a system in which the primary driver could select and choose small increments to turn to. Reason being, the gyro algorithm we have already implemented slows down when reaching its target angle, which I thought would make a good way to turn. I did this as follows:
+```java
+int curr = robot.gyro.getIntegratedZValue();
+while (opModeIsActive() && keepGoing) {
+  if (gamepad1.left_bumper) {
+    count = count - 7;
+    runtime.reset();
+    sleep(500);
+    continue;
+  }
+  if (gamepad1.right_bumper) {
+    count = count + 7;
+    runtime.reset();
+    sleep(500);
+    continue;
+  }
+  if (runtime.milliseconds() > 1000) {
+    keepGoing = false;
+  }
+}
+
+int next = curr + count;
+robot.gyroTurn(0.7, next);
+```
+This is a relatively simple algorithm. When this block of code is run (say, gamepad 1 presses A), the current angle is recorded, and the loop begins. During the course of the loop, the code checks for either a left or right bumper press. These will then decrease or increase the variable "count". If either is pressed, the runtime (an internal timer) is reset. Only when no button has been pressed for 1 second will the loop break, and the turn will be executed (by adding curr and count to get a new angle). The gyroTurn method of robot smoothly rotates the robot to the desired angle.
+
+Unfortuanetly, this method of turning, according to our drivers, turned out to be "clunky" and "slow", because every time you wanted to turn, you would have to press a, click bumpers to a desired amount of angle (displayed as telemetry), release, and wait for the robot to turn. Onto new ideas!
+
+### Time-assisted turning
+
+With this failed attempt, I wanted to try modifying the turning of the mecanum algorithm, instead of adding a new turning system (which added complication and wasn't effective). What I had to do was modify the following previous method (which mapped gamepad input to directional input):
+```java
+void manualDrive(double multiplier) {
+  // In this mode the Left stick moves the robot fwd & back, and Right & Left
+  // The Right stick rotates CCW and CW. This is like playing a FPS game.
   
-        
-      
-  
+  setAxial(-myOpMode.gamepad1.left_stick_y * multiplier);
+  setLateral(myOpMode.gamepad1.left_stick_x * multiplier);
+  setYaw(myOpMode.gamepad1.right_stick_x * multiplier);
+}
+```
+
+What I first tried to do was use time. This was an extremely simple, readable algorithm.
+```java
+void smartManualDrive(double timeElasped) {
+  setAxial(-myOpMode.gamepad1.left_stick_y);
+  setLateral(myOpMode.gamepad1.left_stick_x);
+  double power = myOpMode.gamepad1.right_stick_x;
+  int time1 = 400;
+  int time2 = 800;
+  int time3 = 1600;
+  int time4 = 20000;
+  int time5 = 45000;
+  double power1 = 0.1;
+
+  if(timeElasped < time1) {setYaw(power*0.07);}
+  else if(timeElasped < time2) {setYaw(power*0.17);}
+  else if(timeElasped < time3) {setYaw(power*0.5);}
+  else if(timeElasped < time4) {setYaw(power*0.8);}
+  else if(timeElasped >= time5) {setYaw(power);}
+}
+```
+We pass into this method from the tele-op class a runtime value in milliseconds. This value comes from the current time since the right joystick has been released, which corresponds with the time that the driver has held down the joystick. When the gamepad is detected to be "at rest", the timer resets. The values were approximated by me.
+
+This algorithm did not have inherent issues, but it was scrapped in favor of another, even smoother algorithm.
+
+### Linear Rate Increase Turning
+
+Scrolling through the example opmodes, I found one ConceptRampMotorSpeed.java. This class simply increased the power of one motor to full power, and then decreased it to negative full power. This algorithm initially did not take any user input, so I modified it. Here is the initial algorithm:
+
+```java
+if (rampUp) {
+  // Keep stepping up until we hit the max value.
+  power += INCREMENT ;
+  if (power >= MAX_FWD ) {
+    power = MAX_FWD;
+    rampUp = !rampUp; // Switch ramp direction
+  }
+}
+else {
+  // Keep stepping down until we hit the min value.
+  power -= INCREMENT ;
+  if (power <= MAX_REV ) {
+    power = MAX_REV;
+    rampUp = !rampUp; // Switch ramp direction
+  }
+}
+```
+
+As you can see, this algorithm has no input. Here is the modified algorithm:
+
+```java
+void smartManualDrive(double multiplier) {
+  setAxial(-myOpMode.gamepad1.left_stick_y * multiplier);
+  setLateral(myOpMode.gamepad1.left_stick_x * multiplier);
+  double MAX = myOpMode.gamepad1.right_stick_x * multiplier;
+  double INCREMENT = Math.abs(MAX / 11);
+
+  if (MAX > 0) {
+    // Keep stepping up until we hit the max value.
+    smartPower += INCREMENT;
+    if (smartPower >= MAX) {
+      smartPower = MAX;
+    }
+  } else if (MAX < 0) {
+    // Keep stepping down until we hit the min value.
+    smartPower -= INCREMENT;
+    if (smartPower <= MAX) {
+      smartPower = MAX;
+    }
+  }
+  setYaw(smartPower);
+}
+```
+
+Stepwise:
+1. We set the max power for turning to be equal to however far the joystick is moved.
+2. We change the increment (the slope) as a function of the max power (right now, max / 11).
+3. If the MAX is positive, and the robot should move clockwise, add the increment to the power variable to turn the robot clockwise.
+4. If the power variable is greater than the max power, it is set equal to the max power.
+5. Repeat 3 and 4, but subtract the increment from the power variable.
+6. Set the robot to move with a power of the power variable.
+
+A keen eye will notice that smartPower never gets reset! I couldn't find a way to do this in this method, so instead, I reset it in the main tele-op class. Like the time algorithm, when the right joystick is not being touched (driver is not turning the robot), the power variable (smartPower) should be reset. We can check and do this by setting `robot.smartPower = 0`.
+
+After multiple driver test runs, the general consensus was that this algorithm felt much smoother, and allowed for more precise movement. Also, it sounds better.
+
+## Questions? Contact Javascouts in the booth or at javascouts@gmail.com
