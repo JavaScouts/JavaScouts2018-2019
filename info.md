@@ -450,7 +450,7 @@ double max = Math.max(Math.abs(left), Math.abs(right));
 Of course, we only need to normalize if some values are greater than one, so `if (max > 1.0) {...}` will streamline things.
 With that, the mecanum drive algorithm works completely, and you can see it in action on the field!
 
-# Information on certain Driver-Enhancements
+# Information on algorithm-assisted turning
 
 From the very beginning of our team's career, we have considered and attempted implementing driver control algorithms in order to make our driver's lives easier and more efficient. In this year's game, we have had a consistent issue with turning: when we try to turn slowly, we actually move quite "jerkily" and our long extension wibbles and wobbles back and forth. We have seen many other teams with what seemed to be a more smoother drive. So, we tried to implement it.
 
