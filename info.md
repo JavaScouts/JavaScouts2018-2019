@@ -567,9 +567,12 @@ void smartManualDrive(double multiplier) {
       smartPower = MAX;
     }
   }
+
   setYaw(smartPower);
+
 }
 ```
+
 
 Stepwise:
 1. We set the max power for turning to be equal to however far the joystick is moved.
