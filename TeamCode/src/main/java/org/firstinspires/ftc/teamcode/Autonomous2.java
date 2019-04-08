@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -60,6 +59,7 @@ public class Autonomous2 extends LinearOpMode {
                 if (opModeIsActive() && tracking.tfod != null) {
 
                     POSITION_GOLD = "UNKNOWN"; //combat NullPointerException
+                    sleep(2000);
 
                     while (POSITION_GOLD.equals("UNKNOWN")) {
 
@@ -82,7 +82,8 @@ public class Autonomous2 extends LinearOpMode {
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 9700, 5.0);
+        encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 7.0);
+
 
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
@@ -112,10 +113,6 @@ public class Autonomous2 extends LinearOpMode {
 
                 break;
         }
-        encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
-        robot.ball.setPosition(1.0);
-        robot.gyroTurn(0.5, 0);
-        robot.ball.setPosition(0.85);
         telemetry.addLine("autonomous completed in "+Math.round(runtime.seconds())+" seconds.");
         telemetry.update();
     }

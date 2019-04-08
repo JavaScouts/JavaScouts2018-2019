@@ -29,7 +29,7 @@ public class ZMecanumDrive extends LinearOpMode {
             //robot.leftDrive.setPower(left);
             //robot.backLDrive.setPower(left);
 
-            robot.manualDrive();
+            robot.manualDrive(1.0);
             robot.moveRobot();
 
 

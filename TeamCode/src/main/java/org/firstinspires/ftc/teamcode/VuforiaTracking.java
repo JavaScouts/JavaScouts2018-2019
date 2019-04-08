@@ -5,12 +5,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -299,39 +297,6 @@ public class VuforiaTracking {
     int getNumberRecognitions() {
 
         return numDetected;
-
-    }
-
-    double getAngleToGold(List<Recognition> recognitions) {
-
-        double result = 0;
-
-        for (Recognition recognition : recognitions) {
-
-            if (recognition.getLabel().equals(LABEL_SILVER_MINERAL)) {
-
-                recognitions.remove(recognition);
-
-            }
-
-            Collections.sort(recognitions, new Comparator<Recognition>() {
-                @Override
-                public int compare(Recognition a, Recognition b) {
-                    return Math.round(a.getTop() - b.getTop());
-                }
-            });
-
-            while (recognitions.size() != 1) {
-
-                recognitions.remove(recognitions.size() - 1);
-
-            }
-
-            result = recognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES);
-
-        }
-
-        return result;
 
     }
 

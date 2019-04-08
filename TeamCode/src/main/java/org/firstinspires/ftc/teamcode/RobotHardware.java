@@ -18,8 +18,10 @@ public class RobotHardware {
     DcMotor backRDrive;
     DcMotor cup;
     DcMotor screw;
-
+    DcMotor cup2;
+    DcMotor rev;
     Servo ball;
+    Servo yeet;
 
     ModernRoboticsI2cGyro gyro;
     ModernRoboticsI2cRangeSensor range;
@@ -30,6 +32,8 @@ public class RobotHardware {
     private double driveYaw = 0;   // Positive is CCW
     private static final double HEADING_THRESHOLD = 1;      // As tight as we can make it with an integer gyro
     private static final double P_TURN_COEFF = 0.1;
+
+    double smartPower = 0;
 
     private LinearOpMode myOpMode;
     private HardwareMap map;
@@ -50,10 +54,14 @@ public class RobotHardware {
         backLDrive = map.dcMotor.get("bl");
         backRDrive = map.dcMotor.get("br");
         cup = map.dcMotor.get("Cup");
+        cup2 = map.dcMotor.get("Cup2");
         screw = map.dcMotor.get("Screw");
+        rev = map.dcMotor.get("rev");
+
 
         //get servos
         ball = map.servo.get("Ball");
+        yeet = map.servo.get("yeet");
 
         //get sensors
         gyro = map.get(ModernRoboticsI2cGyro.class, "g");
@@ -65,7 +73,7 @@ public class RobotHardware {
         rightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
         backRDrive.setDirection(DcMotorSimple.Direction.FORWARD);
         cup.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        screw.setDirection(DcMotorSimple.Direction.REVERSE);
         //STOP EVERYTHING
         moveRobot(0, 0, 0);
 
@@ -88,6 +96,7 @@ public class RobotHardware {
         backRDrive.setMode(mode);
         cup.setMode(mode);
         screw.setMode(mode);
+        cup2.setMode(mode);
 
     }
 
@@ -100,13 +109,40 @@ public class RobotHardware {
 
     }
 
-    void manualDrive() {
+    void smartManualDrive(double multiplier) {
+
+        setAxial(-myOpMode.gamepad1.left_stick_y * multiplier);
+        setLateral(myOpMode.gamepad1.left_stick_x * multiplier);
+
+        double MAX = myOpMode.gamepad1.right_stick_x * multiplier;
+        double INCREMENT = Math.abs(MAX / 11);
+
+        if (MAX > 0) {
+            // Keep stepping up until we hit the max value.
+            smartPower += INCREMENT;
+            if (smartPower >= MAX) {
+                smartPower = MAX;
+            }
+        } else if (MAX < 0) {
+            // Keep stepping down until we hit the min value.
+            smartPower -= INCREMENT;
+            if (smartPower <= MAX) {
+                smartPower = MAX;
+            }
+        }
+
+        //myOpMode.telemetry.addData("Smart Power>", smartPower);
+        setYaw(smartPower);
+
+    }
+
+    void manualDrive(double multiplier) {
         // In this mode the Left stick moves the robot fwd & back, and Right & Left.
         // The Right stick rotates CCW and CW.
 
-        setAxial(-myOpMode.gamepad1.left_stick_y);
-        setLateral(myOpMode.gamepad1.left_stick_x);
-        setYaw(myOpMode.gamepad1.right_stick_x);
+        setAxial(-myOpMode.gamepad1.left_stick_y * multiplier);
+        setLateral(myOpMode.gamepad1.left_stick_x * multiplier);
+        setYaw(myOpMode.gamepad1.right_stick_x * multiplier);
 
     }
 
@@ -137,15 +173,15 @@ public class RobotHardware {
             left /= max;
         }
 
-        // Set drive motor power levels
+        // Set drive motor smartPower levels
         backLDrive.setPower(backL);
         backRDrive.setPower(backR);
         leftDrive.setPower(left);
         rightDrive.setPower(right);
 
         // Display Telemetry
-        myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-        myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backL, backR);
+        //myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], >>Y[%+5.2f]<<", driveAxial, driveLateral, driveYaw);
+        //myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backL, backR);
 
     }
 
@@ -179,7 +215,7 @@ public class RobotHardware {
         double leftSpeed;
         double rightSpeed;
 
-        // determine turn power based on +/- error
+        // determine turn smartPower based on +/- error
         error = getError(angle);
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {

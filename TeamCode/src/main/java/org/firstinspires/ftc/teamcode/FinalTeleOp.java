@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class FinalTeleOp extends LinearOpMode {
 
     RobotHardware robot = new RobotHardware();
-    Servo marker;
+    Servo hiccup;
 
     //VuforiaTracking tracking = new VuforiaTracking();
 
@@ -24,20 +24,25 @@ public class FinalTeleOp extends LinearOpMode {
     boolean Detent;
     double power = 0.4;
     double pos = 0;
+    double multiplier = 0.92;
     boolean moved = false;
+    boolean slid = false;
+    String kys = "";
+
 
     @Override
     public void runOpMode() {
 
         robot.init(hardwareMap, this);
-        marker = hardwareMap.get(Servo.class, "m");
+        hiccup = hardwareMap.get(Servo.class, "m");
+
 
         //not sure what this mess does but i don't trust myself to fix it
         robot.cup.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.cup.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        // robot.cup.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.screw.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.screw.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        robot.cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //robot.cup.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.leftDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.rightDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
         robot.backRDrive.setMode(DcMotor.RunMode.RESET_ENCODERS);
@@ -49,15 +54,27 @@ public class FinalTeleOp extends LinearOpMode {
         robot.gyro.calibrate();
         LastDetent = true;
         moved = false;
+        slid = false;
+        kys = "screw mode";
+
 
         waitForStart();
 
 
         while (opModeIsActive()) {
 
-            moved = false;
+            if (gamepad1.left_bumper) {
+                multiplier = 0.92;
+            } else if (gamepad1.right_bumper) {
+                multiplier = 0.3;
+            }
 
-            robot.manualDrive();
+            if (gamepad1.right_stick_x == 0) {
+                robot.smartPower = 0;
+                telemetry.addLine("Smart Power resetting due to release of joystick.");
+            }
+
+            robot.smartManualDrive(multiplier);
             robot.moveRobot();
 
             //refer to control diagram for how to control our robot, and an explanation of all this stuff
@@ -67,33 +84,36 @@ public class FinalTeleOp extends LinearOpMode {
                 robot.ball.setPosition(0);
             } else if (gamepad2.y){
                 robot.ball.setPosition(0.9);
-            }
-
+            }78
 
 */
-
-            if(gamepad2.left_bumper) {
-                marker.setPosition(1.0);
+            if (gamepad2.left_bumper) {
+                hiccup.setPosition(0);
             }
-            if(gamepad2.right_bumper) {
-                marker.setPosition(0.3);
+
+            if (gamepad2.right_bumper) {
+                hiccup.setPosition(1.0);
+            }
+
+            if (gamepad2.x) {
+                pos = 0.4;
+                moved = true;
             }
 
             if(gamepad2.a) {
-                pos = 0.37;
+                pos = 0.9;
                 moved = true;
+
             }
+
             if(gamepad2.b) {
-                pos = 0.0;
-                moved = true;
-            }
-            if(gamepad2.y) {
-                pos = 0.5;
+                pos = 0;
                 moved = true;
             }
             if(moved) {
                 robot.ball.setPosition(pos);
             }
+
             //use dpad to drive robot slowly
             if(gamepad1.dpad_left) {
 
@@ -126,7 +146,7 @@ public class FinalTeleOp extends LinearOpMode {
             }
 
             //this system is effective for moving the arm and holding it in position.
-            Detent = (Math.abs(gamepad2.left_stick_y) <= 0.1);
+           /* Detent = (Math.abs(gamepad2.left_stick_y) <= 0.1);
             // check for hold or move
             if (Detent) {
                 // we are in hold so use RTP
@@ -154,12 +174,39 @@ public class FinalTeleOp extends LinearOpMode {
             }
 
             // remember last detent state for next time around.
-            LastDetent = Detent;
+            LastDetent = Detent;*/
+
+            if (gamepad2.left_trigger == 1) {
+                slid = false;
+            }
+            if (gamepad2.right_trigger == 1) {
+                slid = true;
+            }
 
             double right = -gamepad2.right_stick_y;
-            robot.screw.setPower(right);
+            double left = -gamepad2.left_stick_y;
+            //double re = -gamepad2.right_stick_x;
+
+            robot.cup.setPower(left);
+            robot.cup2.setPower(left);
+
+            if (!slid) {
+                robot.screw.setPower(right);
+                robot.rev.setPower(0);
+                kys = "screw mode";
+            }
+            if (slid) {
+                robot.screw.setPower(0);
+                robot.rev.setPower(-right);
+                kys = "slider mode";
+            }
+            //rev.setPower(re);
 
             //add all data from sensors and encoders
+            telemetry.addData("Current mode is", kys);
+            telemetry.addData("Current speed multiplier is", multiplier);
+            telemetry.addLine();
+            telemetry.addLine();
             telemetry.addData("cup", robot.cup.getCurrentPosition());
             telemetry.addData("screw", robot.screw.getCurrentPosition());
             telemetry.addData("fl", robot.leftDrive.getCurrentPosition());

@@ -60,6 +60,7 @@ public class Autonomous3 extends LinearOpMode {
                 if (opModeIsActive() && tracking.tfod != null) {
 
                     POSITION_GOLD = "UNKNOWN"; //combat NullPointerException
+                    sleep(2000);
 
                     while (POSITION_GOLD.equals("UNKNOWN")) {
 
@@ -67,7 +68,6 @@ public class Autonomous3 extends LinearOpMode {
 
                         if (!pos.equals("UNKNOWN")) {
                             POSITION_GOLD = pos;
-
                         }
                     }
                 }
@@ -80,7 +80,8 @@ public class Autonomous3 extends LinearOpMode {
         telemetry.update();
 
         //lower robot
-        encoderDrive(0.75, 0, 0, 0, 0, 0, 10000, 5.0);
+        encoderDrive(0.75, 0, 0, 0, 0, 0, 9200, 7.0);
+
 
         telemetry.addData("Position after move 1", POSITION_GOLD);
         telemetry.update();
@@ -89,64 +90,63 @@ public class Autonomous3 extends LinearOpMode {
         switch (POSITION_GOLD) {
             case "LEFT":
 
-                encoderDrive(0.5, -1200, 600, -1200, 600, 0, 0, 3.0);
+                encoderDrive(0.5, -1100, 700, -1100, 700, 0, 0, 3.0);
                 encoderDrive(0.75, -3900, -3900, -3900, -3900, 0, 0, 4.0);
-                robot.gyroTurn(0.5, -45);
+                robot.gyroTurn(0.5, -40);
                 while (robot.range.getDistance(DistanceUnit.INCH) > 10.0) {
                     robot.setPower(-0.5);
                 }
 
                 robot.setPower(0);
                 sleep(600);
-                robot.gyroTurn(0.5, -230);
-                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-                robot.gyroTurn(0.5, -233);
-                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
-                encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
-                robot.ball.setPosition(1.0);
-                robot.gyroTurn(0.5, -233);
+                robot.yeet.setPosition(1.0);
+                robot.setPower(0);
+                sleep(600);
+                robot.gyroTurn(0.5, -43);
+                encoderDrive(1.0, 6900, 6900, 6900, 6900, 0, 0, 5.0);
+                encoderDrive(0.75, 0, 0, 0, 0, 500, 0, 3.0);
+                robot.gyroTurn(0.5, -43);
+
+
 
                 break;
             case "CENTER":
 
                 encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
                 encoderDrive(0.75, -700, -700, -700, -700, 0, 0, 3.0);
-                robot.gyroTurn(0.5, -9);
+                robot.gyroTurn(0.5, -7);
                 encoderDrive(0.75, -5000, -5000, -5000, -5000, 0, 0, 5.0);
-                robot.gyroTurn(0.5, -230);
                 while (robot.range.getDistance(DistanceUnit.INCH) < 10.0) {
                     robot.setPower(-0.5);
                 }
 
                 robot.setPower(0);
                 sleep(600);
-                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-                robot.gyroTurn(0.5, -233);
-                encoderDrive(10, -7000, -7000, -7000, -7000, 0, 0, 4.0);
-                encoderDrive(0.75, 0, 0, 0, 0, -700, 0, 3.0);
-                robot.ball.setPosition(1.0);
-                robot.gyroTurn(0.5, -233);
+                robot.yeet.setPosition(1.0);
+                robot.gyroTurn(0.5, -43);
+                encoderDrive(1.0, 6900, 6900, 6900, 6900, 0, 0, 5.0);
+                encoderDrive(0.75, 0, 0, 0, 0, 500, 0, 3.0);
+                robot.gyroTurn(0.5, -43);
+
+
 
                 break;
             default:  //this is exception handling. it includes the "RIGHT" case and all other situations. RIGHT is the most reliable.
 
-                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 3.0);
-                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 3.0);
-                encoderDrive(0.5, 600, -600, 600, -600, 0, 0, 4.0);
-                encoderDrive(0.75, -4000, -4000, -4000, -4000, 0, 0, 3.0);
-                robot.gyroTurn(0.5, -132);
-                encoderDrive(0.75, 3200, 3200, 3200, 3200, 0, 0, 3.0);
-                encoderDrive(0.75, 0, 0, 0, 0, -175, 0, 2.0);
-                robot.gyroTurn(0.5, -225);
-                encoderDrive(10, -7500, -7500, -7500, -7500, 0, 0, 4.0);
-                encoderDrive(0.75, 0, 0, 0, 0, -850, 0, 3.0);
-                robot.ball.setPosition(1.0);
-                robot.gyroTurn(0.5, -231);
-
+                encoderDrive(0.5, -550, 550, -550, 550, 0, 0, 1.0);
+                encoderDrive(0.75, -600, -600, -600, -600, 0, 0, 1.0);
+                robot.gyroTurn(0.5, -33);
+                encoderDrive(0.75, -3200, -3200, -3200, -3200, 0, 0, 3.0);
+                robot.gyroTurn(0.5, 48);
+                encoderDrive(0.75, -3200, -3200, -3200, -3200, 0, 0, 3.0);
+                robot.yeet.setPosition(1.0);
+                robot.gyroTurn(0.5, -43);
+                encoderDrive(1.0, 6900, 6900, 6900, 6900, 0, 0, 5.0);
+                encoderDrive(0.75, 0, 0, 0, 0, 500, 0, 3.0);
+                robot.gyroTurn(0.5, -43);
                 break;
         }
 
-        robot.ball.setPosition(0.85);
         telemetry.addLine("autonomous completed in "+Math.round(runtime.seconds())+" seconds.");
         telemetry.update();
 
